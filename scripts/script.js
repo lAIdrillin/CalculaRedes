@@ -10,7 +10,7 @@ inputs.forEach(input => {
             event.target.style.boxShadow = '0 0 5px red';
         } else {
             event.target.style.color = '#00ff00';
-            event.target.style.borderColor = '#00ff00';
+            event.target.style.borderColor = '#00ff00'; 
             event.target.style.boxShadow = '0 0 5px #00ff00';
         }
     });
