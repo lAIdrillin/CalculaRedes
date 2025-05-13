@@ -33,11 +33,11 @@ document.getElementById('calcular').addEventListener('click', () => {
         return;
     }
 
-    if (octeto1 < 0 || octeto1 > 255 ||octeto2 < 0 || octeto2 > 255 ||octeto3 < 0 || octeto3 > 255 ||octeto4 < 0 || octeto4 > 255
-    ) {
+    else if (octeto1 < 0 || octeto1 > 255 ||octeto2 < 0 || octeto2 > 255 ||octeto3 < 0 || octeto3 > 255 ||octeto4 < 0 || octeto4 > 255) {
         resultadoDiv.innerHTML = '<p class="error">Los valores de los octetos deben estar entre 0 y 255.</p>';
         return;
+    }else{
+        const ip = `${octeto1}.${octeto2}.${octeto3}.${octeto4}`;
+        resultadoDiv.innerHTML = `<p>La direccion IP es <strong>${ip}</strong></p>`;
     }
-
-    resultadoDiv.innerHTML = ''; 
 });
