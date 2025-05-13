@@ -1,37 +1,127 @@
+/* Reset básico */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', monospace;
+}
+
 body {
+    background-color: #0d0d0d;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    color: #00ff00;  /* Verde neón */
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
 }
 
-table {
-    border: 2px solid black;
+#calculadora {
     border-collapse: collapse;
-    width: 50%;
-    text-align: center;
-    background-color: white;
+    width: 100%;
+    max-width: 650px;
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    border: 2px solid #00ff00;
 }
 
 caption {
-    font-size: 1.5em;
+    font-size: 1.8rem;
     font-weight: bold;
-    margin-bottom: 10px;
+    color: #00ff00;
+    text-align: center;
+    margin-bottom: 15px;
+    text-shadow: 0 0 15px #00ff00;
 }
 
-td {
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+#ip-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#ip-inputs input {
+    width: 60px;
     padding: 10px;
-    border: 1px solid black;
+    background-color: #333;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    color: #00ff00;
+    font-size: 1.2rem;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
 }
 
-#calcular {
-    background-color: #00bfff;
-    color: white;
-    margin: 10px;
-    padding: 10px 20px;
-    border: none;
+#ip-inputs input:focus {
+    border-color: #ff00ff;
+    outline: none;
+    box-shadow: 0 0 5px #ff00ff;
+}
+
+#mascara {
+    padding: 10px;
+    background-color: #333;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    color: #00ff00;
+    font-size: 1.2rem;
+    transition: all 0.2s ease-in-out;
+}
+
+#mascara:focus {
+    border-color: #ff00ff;
+    outline: none;
+    box-shadow: 0 0 5px #ff00ff;
+}
+
+button#calcular {
+    padding: 15px;
+    background-color: #00ff00;
+    color: #000000;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    font-size: 1.4rem;
+    font-weight: bold;
     cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+}
+
+button#calcular:hover {
+    background-color: #ff00ff;
+    border-color: #ff00ff;
+    color: #000000;
+    box-shadow: 0 0 10px #ff00ff;
+}
+
+#resultado {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    min-height: 50px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#resultado:empty {
+    opacity: 0;
 }
