@@ -38,19 +38,26 @@ document.getElementById('calcular').addEventListener('click', () => {
         let clase = '';
         if(octeto1 >= 1 && octeto1 <= 126){
             clase = 'Clase A';
+            mascara = '255.0.0.0';
         }else if(octeto1 >= 128 && octeto1 <= 191){
             clase = 'Clase B';
+            mascara = '255.255.0.0';
         }else if(octeto1 >= 192 && octeto1 <= 223){
             clase = 'Clase C';
+            mascara = '255.255.255.0';
         }else if(octeto1 >= 224 && octeto1 <= 239){
             clase = 'Clase D';
+            mascara = 'no tiene(multicast)';
         }else if(octeto1 >= 240 && octeto1 <= 255){
             clase = 'Clase E';
+            mascara = 'no tiene(experiemental)';
         }else{
             clase = 'Clase desconocida';
+            mascara = 'no tiene';
         }
         resultadoDiv.innerHTML = `<p>La direccion IP es <strong>${ip}</strong></p>
-                                  <p>Clase de red: <strong>${clase}</strong></p>`;
+                                  <p>Clase de red: <strong>${clase}</strong></p>
+                                  <p>Máscara por defecto: <strong>${mascara}</strong></p>`;
     }
 
 });
