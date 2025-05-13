@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora IP</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <table id="calculadora">
+        <caption>CalculaRedes</caption>
+        <tr> 
+            <td colspan="2">
+                <form id="formulario">
+                    <label class="ip" for="ip"><strong>IP:</strong></label>
+                    <div id="ip-inputs">
+                        <input  type="number" id="octeto1" name="octeto1" min="0" max="255" required>
+                        .
+                        <input  type="number" id="octeto2" name="octeto2" min="0" max="255" required>
+                        .
+                        <input  type="number" id="octeto3" name="octeto3" min="0" max="255" required>
+                        .
+                        <input type="number" id="octeto4" name="octeto4" min="0" max="255" required>
+                    </div>
+                    <br>
+                    <br>
+                    <button type="button" id="calcular">Calcular</button>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="resultado"></div>
+            </td> 
+        </tr>
+    </table>
+    <video autoplay loop muted playsinline id="video-fondo">
+        <source src="fondo/47802-451812879_tiny.mp4" type="video/mp4">
+    </video>
+    
+    <script src="scripts/script.js"></script>
+</body>
+</html>
