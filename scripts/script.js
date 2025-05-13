@@ -65,13 +65,13 @@ document.getElementById('calcular').addEventListener('click', () => {
             direccion = 'Privada';
         }
         else{
-            direccion = 'Publica';
+            direccion = 'Pública';
         }
 
-        resultadoDiv.innerHTML = `<p>La direccion IP es <strong>${ip}</strong></p>
+        resultadoDiv.innerHTML = `<p>La dirección IP es <strong>${ip}</strong></p>
                                   <p>Clase de red: <strong>${clase}</strong></p>
                                   <p>Máscara por defecto: <strong>${mascara}</strong></p>
-                                  <p>Tipo de direccion: <strong>${direccion}</strong></p>`;
+                                  <p>Tipo de dirección: <strong>${direccion}</strong></p>`;
                                   
     }
 
