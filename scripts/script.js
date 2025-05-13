@@ -1,23 +1,20 @@
 const inputs = document.querySelectorAll('#octeto1, #octeto2, #octeto3, #octeto4');
 
 inputs.forEach(input => {
-    input.addEventListener('input', () => {
-        const octeto1 = parseInt(document.getElementById('octeto1').value) || 0;
-        const octeto2 = parseInt(document.getElementById('octeto2').value) || 0;
-        const octeto3 = parseInt(document.getElementById('octeto3').value) || 0;
-        const octeto4 = parseInt(document.getElementById('octeto4').value) || 0;
+    input.addEventListener('input', (event) => {
+        const value = parseInt(event.target.value) || 0;
 
-        if (octeto1 < 0 || octeto1 > 255 ||octeto2 < 0 || octeto2 > 255 ||octeto3 < 0 || octeto3 > 255 || octeto4 < 0 || octeto4 > 255) {
-            input.style.color = 'red';
-            input.style.borderColor = 'red';
-            input.style.boxShadow = '0 0 5px red';
+        if (value < 0 || value > 255) {
+            event.target.style.color = 'red';
+            event.target.style.borderColor = 'red';
+            event.target.style.boxShadow = '0 0 5px red';
         } else {
-            input.style.color = 'green';
-            input.style.borderColor = 'green';
-            input.style.boxShadow = '0 0 5px green';
+            event.target.style.color = 'green';
+            event.target.style.borderColor = 'green';
+            event.target.style.boxShadow = '0 0 5px green';
         }
     });
-});     
+});
 
 
 document.getElementById('calcular').addEventListener('click', () => {
@@ -55,4 +52,5 @@ document.getElementById('calcular').addEventListener('click', () => {
         resultadoDiv.innerHTML = `<p>La direccion IP es <strong>${ip}</strong></p>
                                   <p>Clase de red: <strong>${clase}</strong></p>`;
     }
+
 });
