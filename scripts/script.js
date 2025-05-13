@@ -38,6 +38,21 @@ document.getElementById('calcular').addEventListener('click', () => {
         return;
     }else{
         const ip = `${octeto1}.${octeto2}.${octeto3}.${octeto4}`;
-        resultadoDiv.innerHTML = `<p>La direccion IP es <strong>${ip}</strong></p>`;
+        let clase = '';
+        if(octeto1 >= 1 && octeto1 <= 126){
+            clase = 'Clase A';
+        }else if(octeto1 >= 128 && octeto1 <= 191){
+            clase = 'Clase B';
+        }else if(octeto1 >= 192 && octeto1 <= 223){
+            clase = 'Clase C';
+        }else if(octeto1 >= 224 && octeto1 <= 239){
+            clase = 'Clase D';
+        }else if(octeto1 >= 240 && octeto1 <= 255){
+            clase = 'Clase E';
+        }else{
+            clase = 'Clase desconocida';
+        }
+        resultadoDiv.innerHTML = `<p>La direccion IP es <strong>${ip}</strong></p>
+                                  <p>Clase de red: <strong>${clase}</strong></p>`;
     }
 });
