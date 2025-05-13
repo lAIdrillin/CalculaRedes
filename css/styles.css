@@ -32,17 +32,10 @@ input {
     background-color: rgb(12, 12, 12);
     margin-top: 15px; 
     text-align: center;
+    border-radius: 20px;
 }
 
-input.valid {
-    border-color: green;
-    color: green;
-}
 
-input.invalid {
-    border-color: red;
-    color: red;
-}
 
 #calcular {
     background-color: #00ff00;
