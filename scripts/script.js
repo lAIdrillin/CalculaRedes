@@ -50,6 +50,7 @@ document.getElementById('calcular').addEventListener('click', () => {
     `;
 });
 
+
 // Validar octetos en tiempo real
 const inputs = document.querySelectorAll('#ip-inputs input');
 inputs.forEach(input => {
