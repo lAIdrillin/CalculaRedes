@@ -18,7 +18,7 @@ inputs.forEach(input => {
             input.style.color = 'green';
         }
     });
-});
+});  
 
 
 document.getElementById('calcular').addEventListener('click', () => {
