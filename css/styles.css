@@ -12,20 +12,19 @@ table {
     border: 2px solid #00ff00;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     border-collapse: collapse;
-    width: 50%;
+    width: 70%;
+    height: 50%;
     text-align: center;
     background-color: rgb(12, 12, 12);
-}
-.ip{
-    color: #00ff00;
-    font-size: 1.2em;
 }
 
 caption {
     font-size: 1.5em;
     font-weight: bold;
     margin-bottom: 10px;
+    color: #00ff00;
 }
+
 input {
     border: 1px solid #00ff00;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
@@ -34,6 +33,17 @@ input {
     margin-top: 15px; 
     text-align: center;
 }
+
+input.valid {
+    border-color: green;
+    color: green;
+}
+
+input.invalid {
+    border-color: red;
+    color: red;
+}
+
 #calcular {
     background-color: #00ff00;
     color: rgb(0, 0, 0);
@@ -43,14 +53,32 @@ input {
     cursor: pointer;
     border-radius: 6px;
 }
-#calcular:hover{
+
+#calcular:hover {
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 }
+
+#resultado {
+    color: #00ff00;
+    margin-top: 20px;
+}
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-input[type="number"] {
-    -moz-appearance: textfield;
-}
+
+#video-fondo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100vw;
+    min-height: 100vh;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    object-fit: cover;
+    opacity: 0.25;
+    pointer-events: none;
+    }
