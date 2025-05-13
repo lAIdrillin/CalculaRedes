@@ -55,9 +55,24 @@ document.getElementById('calcular').addEventListener('click', () => {
             clase = 'Clase desconocida';
             mascara = 'no tiene';
         }
+        if((octeto1 === 10) && (octeto2 >= 0 && octeto2 <= 255) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
+            direccion = 'Privada';
+        }
+       else if((octeto1 === 172) && (octeto2 >= 16 && octeto2 <= 31) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
+            direccion = 'Privada';
+        }
+        else if((octeto1 === 192) && (octeto2 === 168) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
+            direccion = 'Privada';
+        }
+        else{
+            direccion = 'Publica';
+        }
+
         resultadoDiv.innerHTML = `<p>La direccion IP es <strong>${ip}</strong></p>
                                   <p>Clase de red: <strong>${clase}</strong></p>
-                                  <p>Máscara por defecto: <strong>${mascara}</strong></p>`;
+                                  <p>Máscara por defecto: <strong>${mascara}</strong></p>
+                                  <p>Tipo de direccion: <strong>${direccion}</strong></p>`;
+                                  
     }
 
 });
