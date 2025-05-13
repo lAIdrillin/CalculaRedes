@@ -14,7 +14,7 @@ inputs.forEach(input => {
         } else {
             input.style.color = 'green';
             input.style.borderColor = 'green';
-            input.style.boxShadow = '0 0 5px red';
+            input.style.boxShadow = '0 0 5px green';
         }
     });
 });     
