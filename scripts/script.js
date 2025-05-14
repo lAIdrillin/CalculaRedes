@@ -39,172 +39,106 @@ document.getElementById('calcular').addEventListener('click', () => {
     let clase = '';
     let mascara = '';
     let direccion = '';
+    let wildcard = '';
+    let red = '';
+    let broadcast = '';
+    let hosts = '-';
+    let bitsMascara = 24; // Ajusta según sea necesario
 
-    if(octeto1 >= 1 && octeto1 <= 126){
+    // Determinar la clase de red
+    if (octeto1 >= 1 && octeto1 <= 126) {
         clase = 'Clase A';
         mascara = '255.0.0.0';
-    }else if(octeto1 >= 128 && octeto1 <= 191){
+        bitsMascara = 8;
+    } else if (octeto1 >= 128 && octeto1 <= 191) {
         clase = 'Clase B';
         mascara = '255.255.0.0';
-    }else if(octeto1 >= 192 && octeto1 <= 223){
+        bitsMascara = 16;
+    } else if (octeto1 >= 192 && octeto1 <= 223) {
         clase = 'Clase C';
         mascara = '255.255.255.0';
-    }else if(octeto1 >= 224 && octeto1 <= 239){
+        bitsMascara = 24;
+    } else if (octeto1 >= 224 && octeto1 <= 239) {
         clase = 'Clase D';
-        mascara = 'no tiene(multicast)';
-    }else if(octeto1 >= 240 && octeto1 <= 255){
+        mascara = 'no tiene (multicast)';
+    } else if (octeto1 >= 240 && octeto1 <= 255) {
         clase = 'Clase E';
-        mascara = 'no tiene(experiemental)';
-    }else{
-        const ip = `${octeto1}.${octeto2}.${octeto3}.${octeto4}`;
-        let clase = '';
-        let mascara = '';
-        let bitsMascara = '';
-        let direccion = '';
-        if(octeto1 >= 1 && octeto1 <= 126){
-            clase = 'Clase A';
-            mascara = '255.0.0.0';
-        }else if(octeto1 >= 128 && octeto1 <= 191){
-            clase = 'Clase B';
-            mascara = '255.255.0.0';
-        }else if(octeto1 >= 192 && octeto1 <= 223){
-            clase = 'Clase C';
-            mascara = '255.255.255.0';
-        }else if(octeto1 >= 224 && octeto1 <= 239){
-            clase = 'Clase D';
-            mascara = 'no tiene(multicast)';
-        }else if(octeto1 >= 240 && octeto1 <= 255){
-            clase = 'Clase E';
-            mascara = 'no tiene(experiemental)';
-        }else{
-            clase = 'Clase desconocida';
-            mascara = 'no tiene';
-        }
-        if((octeto1 === 10) && (octeto2 >= 0 && octeto2 <= 255) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
-            direccion = 'Privada';
-        }
-       else if((octeto1 === 172) && (octeto2 >= 16 && octeto2 <= 31) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
-            direccion = 'Privada';
-        }
-        else if((octeto1 === 192) && (octeto2 === 168) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
-            direccion = 'Privada';
-        }
-        else{
-            direccion = 'Pública';
-        }
-
-        function toBin(octetos){
-            return octetos.map( o => o.toString(2).padStart(8, '0')).join('.');
-        }
-        function parseIP(ip){
-            return ip.split('.').map(Number);
-        }
-        function ipToInt(octetos){
-            return ((octetos[0]<<24) | (octetos[1]<<16) | (octetos[2]<<8) | octetos[3]) >>> 0;
-        }
-        function intToIP(int){
-            return[
-                (int >>> 24) & 0xFF,
-                (int >>> 16) & 0xFF,
-                (int >>> 8) & 0xFF,
-                int & 0xFF
-            ].join('.');
-        }
-        let wildcard = '';
-        let red = '';
-        let broadcast = '';
-        let hosts = '-';
-        if (bitsMascara > 0){
-            const mascaraOctetos = parseIP(mascara);
-            wildcard = mascaraOctetos.map(o => 255 - o).join('.');
-
-            const ipOctetos = [octeto1, octeto2, octeto3, octeto4];
-            const redInt = ipToInt(ipOctetos) & ipToInt(mascaraOctetos);
-            red = intToIP(redInt);
-
-            const broadcastint = redInt | ipToInt(wildcard.split('.').map(Number));
-            broadcast = intToIP(broadcastint);
-
-            hosts = bitsMascara < 31 ? (2 **(32 - bitMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
-
-        } else {
-            wildcard = '-';
-            red = '-';
-            broadcast = '-';
-        }
-        resultadoDiv.innerHTML = `<p>La dirección IP es <strong>${ip}</strong></p>
-                                  <p>Clase de red: <strong>${clase}</strong></p>
-                                  <p>Máscara por defecto: <strong>${mascara}</strong></p>
-                                  <p>Tipo de dirección: <strong>${direccion}</strong></p>`;
-                                  
+        mascara = 'no tiene (experimental)';
+    } else {
+        clase = 'Clase desconocida';
+        mascara = 'no tiene';
     }
-    if((octeto1 === 10) && (octeto2 >= 0 && octeto2 <= 255) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
+
+    // Determinar si la dirección es privada o pública
+    if (
+        (octeto1 === 10) ||
+        (octeto1 === 172 && octeto2 >= 16 && octeto2 <= 31) ||
+        (octeto1 === 192 && octeto2 === 168)
+    ) {
         direccion = 'Privada';
-    }
-   else if((octeto1 === 172) && (octeto2 >= 16 && octeto2 <= 31) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
-        direccion = 'Privada';
-    }
-    else if((octeto1 === 192) && (octeto2 === 168) && (octeto3 >= 0 && octeto3 <= 255) && (octeto4 >= 0 && octeto4 <= 255)){
-        direccion = 'Privada';
-    }
-    else{
+    } else {
         direccion = 'Pública';
     }
-    resultadoDiv.innerHTML = ``;
-     mostrarVentanaEmergente(ip, clase, mascara, direccion);
+
+    // Calcular wildcard, red, broadcast y hosts
+    function parseIP(ip) {
+        return ip.split('.').map(Number);
+    }
+
+    function ipToInt(octetos) {
+        return ((octetos[0] << 24) | (octetos[1] << 16) | (octetos[2] << 8) | octetos[3]) >>> 0;
+    }
+
+    function intToIP(int) {
+        return [
+            (int >>> 24) & 0xFF,
+            (int >>> 16) & 0xFF,
+            (int >>> 8) & 0xFF,
+            int & 0xFF
+        ].join('.');
+    }
+
+    if (bitsMascara > 0) {
+        const mascaraOctetos = parseIP(mascara);
+        wildcard = mascaraOctetos.map(o => 255 - o).join('.');
+
+        const ipOctetos = [octeto1, octeto2, octeto3, octeto4];
+        const redInt = ipToInt(ipOctetos) & ipToInt(mascaraOctetos);
+        red = intToIP(redInt);
+
+        const broadcastInt = redInt | ipToInt(wildcard.split('.').map(Number));
+        broadcast = intToIP(broadcastInt);
+
+        hosts = bitsMascara < 31 ? (2 ** (32 - bitsMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
+    } else {
+        wildcard = '-';
+        red = '-';
+        broadcast = '-';
+    }
+
+    // Mostrar ventana emergente con los resultados
+    mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
 });
-function mostrarVentanaEmergente(ip, clase, mascara, direccion) {
+function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara) {
     const ventanaEmergente = document.createElement('div');
     ventanaEmergente.classList.add('ventana-emergente');
+    ventanaEmergente.setAttribute('id', 'resultados');
     ventanaEmergente.innerHTML = `
         <h2>Detalles de la IP</h2>
-        <p><strong>Dirección IP:</strong> ${ip} <br> <span style="font-size:0.9em;">${toBin([octeto1, octeto2, octeto3, octeto4])}</span></p>
-        <p><strong>Máscara de subred:</strong> ${mascara} ${bitsMascara ? `(/${bitsMascara})` : ''} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(mascara.split('.').map(Number)) : '-'}</span></p>
-        <p><strong>Wildcard:</strong> ${wildcard} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(wildcard.split('.').map(Number)) : '-'}</span></p>
-        <p><strong>Dirección de red:</strong> ${red} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(red.split('.').map(Number)) : '-'}</span></p>
-        <p><strong>Dirección de broadcast:</strong> ${broadcast} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(broadcast.split('.').map(Number)) : '-'}</span></p>
-        <p><strong>Número de hosts:</strong> ${hosts}</p>
-        <p><strong>Clase de red:</strong> ${clase}</p>
-        <p><strong>Tipo de red:</strong> ${direccion}</p>
-
+        <p><strong>IP:</strong> ${ip}</p>
+        <p><strong>Clase:</strong> ${clase}</p>
+        <p><strong>Máscara por defecto:</strong> ${mascara}</p>
+        <p><strong>Tipo de dirección:</strong> ${direccion}</p>
+        <p><strong>Wildcard:</strong> ${wildcard}</p>
+        <p><strong>Dirección de red:</strong> ${red}</p>
+        <p><strong>Dirección de broadcast:</strong> ${broadcast}</p>
+        <p><strong>Hosts disponibles:</strong> ${hosts}</p>
+        <p><strong>Bits de máscara:</strong> ${bitsMascara}</p>
         <button id="cerrarVentana">Cerrar</button>
     `;
     document.body.appendChild(ventanaEmergente);
 
     document.getElementById('cerrarVentana').addEventListener('click', () => {
         ventanaEmergente.remove();
-    console.log("Mostrando ventana emergente"); 
-
-    });
-    cerrarVentana.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    ventanaEmergente.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    ventanaEmergente.style.color = 'white';
-    ventanaEmergente.style.display = 'block';
-    ventanaEmergente.style.position = 'fixed';     
-    const resultadoHTML = `
-        <div id="ventanaResultado" class="resultado">
-            <div class="resultado-content">
-                <h2>¡Enhorabuena, ${nombre}!</h2>
-                <p>Tiempo: ${tiempo}</p>
-                <p>Intentos: ${intentos}</p>
-                <p>Dificultad: ${alto}x${ancho}</p>
-                <button id="compartirFacebook">Compartir en Facebook</button>
-                <button id="cerrarResultado">Cerrar</button>
-            </div>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML("beforeend", resultadoHTML);
-
-    const resultado = document.getElementById("ventanaResultado");
-    resultado.style.display = "block";
-
-    // Cerrar el resultado al hacer clic en el botón
-    document.getElementById("cerrarResultado").addEventListener("click", () => {
-        console.log("Cerrando resultado"); // Verificar si el evento se ejecuta
-
-        resultado.style.display = "none";
-        resultado.remove(); // Eliminar el resultado del DOM
-        location.reload();
     });
 }
