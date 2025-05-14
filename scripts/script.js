@@ -139,25 +139,41 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, b
     ventanaEmergente.setAttribute('id', 'resultados');
 
     const [octeto1, octeto2, octeto3, octeto4] = ip.split('.').map(octeto => octeto.trim());
+    const mascaraOctetos = mascara.split('.').map(Number);
+
+    // Determine the boundary between network and host parts
+    const networkBits = mascaraOctetos.map(o => o.toString(2).padStart(8, '0')).join('').indexOf('0');
+    const ipBits = ip.split('.').map(o => parseInt(o).toString(2).padStart(8, '0')).join('');
+
+    const networkPart = ipBits.slice(0, networkBits);
+    const hostPart = ipBits.slice(networkBits);
+
+    // Format the normal IP with colors
+    const ipOctetos = ip.split('.');
     const ipFormatted = `
-        <span style="color: red;">${octeto1} . ${octeto2} . ${octeto3} . </span>
-        <span style="color: green;">${octeto4}</span>
+        <span style="color: red;">${ipOctetos.slice(0, Math.floor(networkBits / 8)).join('.')}.</span>
+        <span style="color: green;">${ipOctetos.slice(Math.floor(networkBits / 8)).join('.')}</span>
+    `;
+
+    // Format the binary IP with colors
+    const ipBinFormatted = `
+        <span style="color: red;">${networkPart}</span>
+        <span style="color: green;">${hostPart}</span>
     `;
 
     ventanaEmergente.innerHTML = `
     <h2>Detalles de la IP</h2>
-    <p style="margin-bottom: 12px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> (${ipBin})</p>
+    <p style="margin-bottom: 12px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> ${ipBinFormatted}</p>
     <p style="margin-bottom: 12px;"><strong>Clase:</strong> ${clase}</p>
-    <p style="margin-bottom: 12px;"><strong>Máscara por defecto:</strong> ${mascara} <br> <strong>BINARIO: </strong>  (${mascaraBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Máscara por defecto:</strong> ${mascara} <br> <strong>BINARIO: </strong> (${mascaraBin})</p>
     <p style="margin-bottom: 12px;"><strong>Tipo de dirección:</strong> ${direccion}</p>
-    <p style="margin-bottom: 12px;"><strong>Wildcard:</strong> ${wildcard} <br> <strong>BINARIO: </strong>  (${wildcardBin})</p>
-    <p style="margin-bottom: 12px;"><strong>Dirección de red:</strong> ${red} <br> <strong>BINARIO: </strong>  (${redBin})</p>
-    <p style="margin-bottom: 12px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br> <strong>BINARIO: </strong>  (${broadcastBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Wildcard:</strong> ${wildcard} <br> <strong>BINARIO: </strong> (${wildcardBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Dirección de red:</strong> ${red} <br> <strong>BINARIO: </strong> (${redBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br> <strong>BINARIO: </strong> (${broadcastBin})</p>
     <p style="margin-bottom: 12px;"><strong>Hosts disponibles:</strong> ${hosts}</p>
     <p style="margin-bottom: 12px;"><strong>Bits de máscara:</strong> ${bitsMascara}</p>
     <button id="cerrarVentana">Cerrar</button>
-`;
-
+    `;
 
     document.body.appendChild(ventanaEmergente);
 
