@@ -152,26 +152,26 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, b
     const ipOctetos = ip.split('.');
     const ipFormatted = `
         <span style="color: red;">${ipOctetos.slice(0, Math.floor(networkBits / 8)).join(' . ')}.</span>
-        <span style="color: green;">${ipOctetos.slice(Math.floor(networkBits / 8)).join(' . ')}</span>
+        <span style="color: #00ff00;">${ipOctetos.slice(Math.floor(networkBits / 8)).join(' . ')}</span>
     `;
 
     // Format the binary IP with colors
     const ipBinFormatted = `
         <span style="color: red;">${networkPart.match(/.{1,8}/g).join(' . ')}</span>
-        <span style="color: green;">.${hostPart.match(/.{1,8}/g).join(' . ')}</span>
+        <span style="color: #00ff00;">.${hostPart.match(/.{1,8}/g).join(' . ')}</span>
     `;
 
     ventanaEmergente.innerHTML = `
     <h2>Detalles de la IP</h2>
-    <p style="margin-bottom: 12px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> ${ipBinFormatted}</p>
-    <p style="margin-bottom: 12px;"><strong>Clase:</strong> ${clase}</p>
-    <p style="margin-bottom: 12px;"><strong>Máscara por defecto:</strong> ${mascara} <br> <strong>BINARIO: </strong> (${mascaraBin})</p>
-    <p style="margin-bottom: 12px;"><strong>Tipo de dirección:</strong> ${direccion}</p>
-    <p style="margin-bottom: 12px;"><strong>Wildcard:</strong> ${wildcard} <br> <strong>BINARIO: </strong> (${wildcardBin})</p>
-    <p style="margin-bottom: 12px;"><strong>Dirección de red:</strong> ${red} <br> <strong>BINARIO: </strong> (${redBin})</p>
-    <p style="margin-bottom: 12px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br> <strong>BINARIO: </strong> (${broadcastBin})</p>
-    <p style="margin-bottom: 12px;"><strong>Hosts disponibles:</strong> ${hosts}</p>
-    <p style="margin-bottom: 12px;"><strong>Bits de máscara:</strong> ${bitsMascara}</p>
+    <p style="margin-bottom: 25px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> ${ipBinFormatted}</p>
+    <p style="margin-bottom: 25px;"><strong>Máscara por defecto:</strong> ${mascara} <br> <strong>BINARIO: </strong> (${mascaraBin})</p>
+    <p style="margin-bottom: 25px;"><strong>Wildcard:</strong> ${wildcard} <br> <strong>BINARIO: </strong> (${wildcardBin})</p>
+    <p style="margin-bottom: 25px;"><strong>Dirección de red:</strong> ${red} <br> <strong>BINARIO: </strong> (${redBin})</p>
+    <p style="margin-bottom: 25px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br> <strong>BINARIO: </strong> (${broadcastBin})</p>
+    <p style="margin-bottom: 25px;"><strong>Clase:</strong> ${clase}</p>
+    <p style="margin-bottom: 25px;"><strong>Hosts disponibles:</strong> ${hosts}</p>
+    <p style="margin-bottom: 25px;"><strong>Bits de máscara:</strong> ${bitsMascara}</p>
+    <p style="margin-bottom: 25px;"><strong>Tipo de dirección:</strong> ${direccion}</p>
     <button id="cerrarVentana">Cerrar</button>
     `;
 
