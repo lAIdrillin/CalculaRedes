@@ -65,12 +65,65 @@ document.getElementById('calcular').addEventListener('click', () => {
         else{
             direccion = 'Pública';
         }
-
+        mostrarVentanaEmergente(ip, clase, mascara, direccion);
         resultadoDiv.innerHTML = `<p>La dirección IP es <strong>${ip}</strong></p>
                                   <p>Clase de red: <strong>${clase}</strong></p>
                                   <p>Máscara por defecto: <strong>${mascara}</strong></p>
                                   <p>Tipo de dirección: <strong>${direccion}</strong></p>`;
+        
+        
                                   
     }
 
 });
+
+function mostrarVentanaEmergente(ip, clase, mascara, direccion) {
+    const ventanaEmergente = document.createElement('div');
+    ventanaEmergente.classList.add('ventana-emergente');
+    ventanaEmergente.innerHTML = `
+        <h2>Detalles de la IP</h2>
+        <p><strong>IP:</strong> ${ip}</p>
+        <p><strong>Clase:</strong> ${clase}</p>
+        <p><strong>Máscara por defecto:</strong> ${mascara}</p>
+        <p><strong>Tipo de dirección:</strong> ${direccion}</p>
+        <button id="cerrarVentana">Cerrar</button>
+    `;
+    document.body.appendChild(ventanaEmergente);
+
+    document.getElementById('cerrarVentana').addEventListener('click', () => {
+        ventanaEmergente.remove();
+    console.log("Mostrando ventana emergente"); 
+
+    });
+    cerrarVentana.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    ventanaEmergente.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    ventanaEmergente.style.color = 'white';
+    ventanaEmergente.style.display = 'block';
+    ventanaEmergente.style.position = 'fixed';     
+    const resultadoHTML = `
+        <div id="ventanaResultado" class="resultado">
+            <div class="resultado-content">
+                <h2>¡Enhorabuena, ${nombre}!</h2>
+                <p>Tiempo: ${tiempo}</p>
+                <p>Intentos: ${intentos}</p>
+                <p>Dificultad: ${alto}x${ancho}</p>
+                <button id="compartirFacebook">Compartir en Facebook</button>
+                <button id="cerrarResultado">Cerrar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend", resultadoHTML);
+
+    const resultado = document.getElementById("ventanaResultado");
+    resultado.style.display = "block";
+
+    // Cerrar el resultado al hacer clic en el botón
+    document.getElementById("cerrarResultado").addEventListener("click", () => {
+        console.log("Cerrando resultado"); // Verificar si el evento se ejecuta
+
+        resultado.style.display = "none";
+        resultado.remove(); // Eliminar el resultado del DOM
+        location.reload();
+    });
+}
