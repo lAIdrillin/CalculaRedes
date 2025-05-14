@@ -34,6 +34,9 @@ document.getElementById('calcular').addEventListener('click', () => {
     }else{
         const ip = `${octeto1}.${octeto2}.${octeto3}.${octeto4}`;
         let clase = '';
+        let mascara = '';
+        let bitsMascara = '';
+        let direccion = '';
         if(octeto1 >= 1 && octeto1 <= 126){
             clase = 'Clase A';
             mascara = '255.0.0.0';
@@ -66,6 +69,45 @@ document.getElementById('calcular').addEventListener('click', () => {
             direccion = 'Pública';
         }
 
+        function toBin(octetos){
+            return octetos.map( o => o.toString(2).padStart(8, '0')).join('.');
+        }
+        function parseIP(ip){
+            return ip.split('.').map(Number);
+        }
+        function ipToInt(octetos){
+            return ((octetos[0]<<24) | (octetos[1]<<16) | (octetos[2]<<8) | octetos[3]) >>> 0;
+        }
+        function intToIP(int){
+            return[
+                (int >>> 24) & 0xFF,
+                (int >>> 16) & 0xFF,
+                (int >>> 8) & 0xFF,
+                int & 0xFF
+            ].join('.');
+        }
+        let wildcard = '';
+        let red = '';
+        let broadcast = '';
+        let hosts = '-';
+        if (bitsMascara > 0){
+            const mascaraOctetos = parseIP(mascara);
+            wildcard = mascaraOctetos.map(o => 255 - o).join('.');
+
+            const ipOctetos = [octeto1, octeto2, octeto3, octeto4];
+            const redInt = ipToInt(ipOctetos) & ipToInt(mascaraOctetos);
+            red = intToIP(redInt);
+
+            const broadcastint = redInt | ipToInt(wildcard.split('.').map(Number));
+            broadcast = intToIP(broadcastint);
+
+            hosts = bitsMascara < 31 ? (2 **(32 - bitMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
+
+        } else {
+            wildcard = '-';
+            red = '-';
+            broadcast = '-';
+        }
         resultadoDiv.innerHTML = `<p>La dirección IP es <strong>${ip}</strong></p>
                                   <p>Clase de red: <strong>${clase}</strong></p>
                                   <p>Máscara por defecto: <strong>${mascara}</strong></p>
