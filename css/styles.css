@@ -86,13 +86,29 @@ input[type="number"]::-webkit-outer-spin-button {
         color:#00ff00;
         margin-top: 4%;
     }
-    #cerrarVentana{
-        background-color: rgba(0, 0, 0, 0.8);
+
+    #cerrarVentana {
+
+        background-color: #00ff00;
+        border: none;
+        font-family: 'Orbitron';
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        margin-left: 45%;
+        padding: 10px;
+        cursor: pointer;
     }
+
     #resultados {
+        width: 50%;
+        
+        padding: 20px;
+        border: 2px solid #00ff00;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        opacity: 1;
+        color: rgba(0, 0, 0, 0.8);
+        font-family: 'Orbitron';
         background-color: rgba(0, 0, 0, 0.8);
-        color: white;
+        color: #00ff00;
         display: block;
         position: fixed;
     }
-
