@@ -21,19 +21,22 @@
 ## Sesión 2: Mostrar información de la red 14/05/2025
 
 ### Resumen
-
+En el dia de hoy hemos implementado el calculo a binario de todo el menu(respuetas) cuando ha sido posible, tambien implementamos el restante del menu(respuestas),  una ventana emergenta en la cual nos muestra las respuestas con el plus de una barra scroll para poder desplazarnos y un boton para cerrar la ventana
 
 ### Dificultades Encontradas
 1. **Problema**: 
-
+como hacer la transicion a binario
 ### Soluciones Aplicadas
 1. **Solución**: 
-
+prueba y error
 ### Fuentes Consultadas
-- 
+- github copilot
+- youtube
+- Stack Overflow
+- w3schools
 
 ### Decisiones Técnicas
-- 
+- decision de estilos y mostrar los resultados en una ventana emergente
 
 ### Ideas de Mejora Futura
-- 
+- ajustar parametros en la mascara
