@@ -102,7 +102,16 @@ document.getElementById('calcular').addEventListener('click', () => {
     }
 
     if (bitsMascara > 0) {
-        const mascaraOctetos = parseIP(mascara);
+        const mascaraOctetos = bitsMascara <= 32
+            ? [
+                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) >>> 24,
+                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) >>> 16 & 0xFF,
+                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) >>> 8 & 0xFF,
+                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) & 0xFF
+            ]
+            : [255, 255, 255, 255]; // Default to full mask if bitsMascara > 32
+        mascara = mascaraOctetos.join('.');
+
         wildcard = mascaraOctetos.map(o => 255 - o).join('.');
 
         const ipOctetos = [octeto1, octeto2, octeto3, octeto4];
@@ -124,9 +133,11 @@ document.getElementById('calcular').addEventListener('click', () => {
         // Mostrar ventana emergente con los resultados
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, ipBin, mascaraBin, redBin, broadcastBin, wildcardBin);
     } else {
-        wildcard = '-';
-        red = '-';
-        broadcast = '-';
+        // Handle cases for Class D and E or invalid bitsMascara
+        wildcard = 'N/A';
+        red = 'N/A';
+        broadcast = 'N/A';
+        hosts = 'N/A';
 
         // Mostrar ventana emergente con default values
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, '-', '-', '-', '-', '-');
