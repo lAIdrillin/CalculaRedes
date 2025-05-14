@@ -110,27 +110,27 @@ document.getElementById('calcular').addEventListener('click', () => {
         broadcast = intToIP(broadcastInt);
 
         hosts = bitsMascara < 31 ? (2 ** (32 - bitsMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
-    } else {
+        } else {
         wildcard = '-';
         red = '-';
         broadcast = '-';
-    }
+        }
 
-    // Mostrar ventana emergente con los resultados
-    mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
-});
-function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara) {
-    const ventanaEmergente = document.createElement('div');
-    ventanaEmergente.classList.add('ventana-emergente');
-    ventanaEmergente.setAttribute('id', 'resultados');
+        // Mostrar ventana emergente con los resultados
+        mostrarVentanaEmergente(ip.trim(), clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
+    });
+    function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara) {
+        const ventanaEmergente = document.createElement('div');
+        ventanaEmergente.classList.add('ventana-emergente');
+        ventanaEmergente.setAttribute('id', 'resultados');
 
-    const [octeto1, octeto2, octeto3, octeto4] = ip.split('.');
-    const ipFormatted = `
-        <span style="color: red;">${octeto1}.${octeto2}.${octeto3}.</span>
-        <span style="color: green;">${octeto4}</span>
-    `;
+        const [octeto1, octeto2, octeto3, octeto4] = ip.split('.').map(octeto => octeto.trim());
+        const ipFormatted = `
+        <span style="color: red;">${octeto1} . ${octeto2} . ${octeto3} .
+        </span><span style="color: green;">${octeto4}</span>
+        `;
 
-    ventanaEmergente.innerHTML = `
+        ventanaEmergente.innerHTML = `
         <h2>Detalles de la IP</h2>
         <p><strong>IP:</strong> ${ipFormatted}</p>
         <p><strong>Clase:</strong> ${clase}</p>
@@ -142,10 +142,10 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, b
         <p><strong>Hosts disponibles:</strong> ${hosts}</p>
         <p><strong>Bits de máscara:</strong> ${bitsMascara}</p>
         <button id="cerrarVentana">Cerrar</button>
-    `;
-    document.body.appendChild(ventanaEmergente);
+        `;
+        document.body.appendChild(ventanaEmergente);
 
-    document.getElementById('cerrarVentana').addEventListener('click', () => {
+        document.getElementById('cerrarVentana').addEventListener('click', () => {
         ventanaEmergente.remove();
-    });
-}
+        });
+    }
