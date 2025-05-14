@@ -81,6 +81,9 @@ document.getElementById('calcular').addEventListener('click', () => {
     }
 
     // Calcular wildcard, red, broadcast y hosts
+    function toBin(octetos) {
+        return octetos.map(o => o.toString(2).padStart(8,'0')).join('.');
+    }
     function parseIP(ip) {
         return ip.split('.').map(Number);
     }
