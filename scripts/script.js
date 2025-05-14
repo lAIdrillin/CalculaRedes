@@ -158,10 +158,15 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion) {
     ventanaEmergente.classList.add('ventana-emergente');
     ventanaEmergente.innerHTML = `
         <h2>Detalles de la IP</h2>
-        <p><strong>IP:</strong> ${ip}</p>
-        <p><strong>Clase:</strong> ${clase}</p>
-        <p><strong>Máscara por defecto:</strong> ${mascara}</p>
-        <p><strong>Tipo de dirección:</strong> ${direccion}</p>
+        <p><strong>Dirección IP:</strong> ${ip} <br> <span style="font-size:0.9em;">${toBin([octeto1, octeto2, octeto3, octeto4])}</span></p>
+        <p><strong>Máscara de subred:</strong> ${mascara} ${bitsMascara ? `(/${bitsMascara})` : ''} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(mascara.split('.').map(Number)) : '-'}</span></p>
+        <p><strong>Wildcard:</strong> ${wildcard} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(wildcard.split('.').map(Number)) : '-'}</span></p>
+        <p><strong>Dirección de red:</strong> ${red} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(red.split('.').map(Number)) : '-'}</span></p>
+        <p><strong>Dirección de broadcast:</strong> ${broadcast} <br> <span style="font-size:0.9em;">${bitsMascara ? toBin(broadcast.split('.').map(Number)) : '-'}</span></p>
+        <p><strong>Número de hosts:</strong> ${hosts}</p>
+        <p><strong>Clase de red:</strong> ${clase}</p>
+        <p><strong>Tipo de red:</strong> ${direccion}</p>
+
         <button id="cerrarVentana">Cerrar</button>
     `;
     document.body.appendChild(ventanaEmergente);
