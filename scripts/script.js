@@ -71,11 +71,8 @@ document.getElementById('calcular').addEventListener('click', () => {
     else{
         direccion = 'Pública';
     }
-    mostrarVentanaEmergente(ip, clase, mascara, direccion);
-    resultadoDiv.innerHTML = `<p>La dirección IP es <strong>${ip}</strong></p>
-                              <p>Clase de red: <strong>${clase}</strong></p>
-                              <p>Máscara por defecto: <strong>${mascara}</strong></p>
-                              <p>Tipo de dirección: <strong>${direccion}</strong></p>`;
+    resultadoDiv.innerHTML = ``;
+     mostrarVentanaEmergente(ip, clase, mascara, direccion);
 });
 function mostrarVentanaEmergente(ip, clase, mascara, direccion) {
     const ventanaEmergente = document.createElement('div');
