@@ -123,9 +123,16 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, b
     const ventanaEmergente = document.createElement('div');
     ventanaEmergente.classList.add('ventana-emergente');
     ventanaEmergente.setAttribute('id', 'resultados');
+
+    const [octeto1, octeto2, octeto3, octeto4] = ip.split('.');
+    const ipFormatted = `
+        <span style="color: red;">${octeto1}.${octeto2}.${octeto3}.</span>
+        <span style="color: green;">${octeto4}</span>
+    `;
+
     ventanaEmergente.innerHTML = `
         <h2>Detalles de la IP</h2>
-        <p><strong>IP:</strong> ${ip}</p>
+        <p><strong>IP:</strong> ${ipFormatted}</p>
         <p><strong>Clase:</strong> ${clase}</p>
         <p><strong>Máscara por defecto:</strong> ${mascara}</p>
         <p><strong>Tipo de dirección:</strong> ${direccion}</p>
