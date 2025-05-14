@@ -16,3 +16,24 @@
 - Nos hemos decantado por una estética moderna tipo Matrix
 **Ideas de mejora futura**:
 - Mejorar la página añadiendo algun estilo css más
+
+
+## Sesión 2: Mostrar información de la red 14/05/2025
+
+### Resumen
+
+
+### Dificultades Encontradas
+1. **Problema**: 
+
+### Soluciones Aplicadas
+1. **Solución**: 
+
+### Fuentes Consultadas
+- 
+
+### Decisiones Técnicas
+- 
+
+### Ideas de Mejora Futura
+- 
