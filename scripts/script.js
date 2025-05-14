@@ -151,14 +151,14 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, b
     // Format the normal IP with colors
     const ipOctetos = ip.split('.');
     const ipFormatted = `
-        <span style="color: red;">${ipOctetos.slice(0, Math.floor(networkBits / 8)).join('.')}.</span>
-        <span style="color: green;">${ipOctetos.slice(Math.floor(networkBits / 8)).join('.')}</span>
+        <span style="color: red;">${ipOctetos.slice(0, Math.floor(networkBits / 8)).join(' . ')}.</span>
+        <span style="color: green;">${ipOctetos.slice(Math.floor(networkBits / 8)).join(' . ')}</span>
     `;
 
     // Format the binary IP with colors
     const ipBinFormatted = `
-        <span style="color: red;">${networkPart}</span>
-        <span style="color: green;">${hostPart}</span>
+        <span style="color: red;">${networkPart.match(/.{1,8}/g).join(' . ')}</span>
+        <span style="color: green;">.${hostPart.match(/.{1,8}/g).join(' . ')}</span>
     `;
 
     ventanaEmergente.innerHTML = `
