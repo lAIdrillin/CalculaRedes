@@ -148,7 +148,7 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, b
         <h2>Detalles de la IP</h2>
         <p><strong>IP:</strong> ${ipFormatted} (${ipBin})</p>
         <p><strong>Clase:</strong> ${clase}</p>
-        <p><strong>Máscara por defecto:</strong> ${mascara} (${mascaraBin})</p>
+        <p><strong>Máscara por defecto:</strong> ${mascara} (${mascaraBin})</p> 
         <p><strong>Tipo de dirección:</strong> ${direccion}</p>
         <p><strong>Wildcard:</strong> ${wildcard} (${wildcardBin})</p>
         <p><strong>Dirección de red:</strong> ${red} (${redBin})</p>
