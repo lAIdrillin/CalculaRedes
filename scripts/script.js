@@ -140,23 +140,24 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, b
 
     const [octeto1, octeto2, octeto3, octeto4] = ip.split('.').map(octeto => octeto.trim());
     const ipFormatted = `
-        <span style="color: red;">${octeto1} . ${octeto2} . ${octeto3}. </span>
+        <span style="color: red;">${octeto1} . ${octeto2} . ${octeto3} . </span>
         <span style="color: green;">${octeto4}</span>
     `;
 
     ventanaEmergente.innerHTML = `
-        <h2>Detalles de la IP</h2>
-        <p><strong>IP:</strong> ${ipFormatted} (${ipBin})</p>
-        <p><strong>Clase:</strong> ${clase}</p>
-        <p><strong>Máscara por defecto:</strong> ${mascara} (${mascaraBin})</p> 
-        <p><strong>Tipo de dirección:</strong> ${direccion}</p>
-        <p><strong>Wildcard:</strong> ${wildcard} (${wildcardBin})</p>
-        <p><strong>Dirección de red:</strong> ${red} (${redBin})</p>
-        <p><strong>Dirección de broadcast:</strong> ${broadcast} (${broadcastBin})</p>
-        <p><strong>Hosts disponibles:</strong> ${hosts}</p>
-        <p><strong>Bits de máscara:</strong> ${bitsMascara}</p>
-        <button id="cerrarVentana">Cerrar</button>
-    `;
+    <h2>Detalles de la IP</h2>
+    <p style="margin-bottom: 12px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> (${ipBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Clase:</strong> ${clase}</p>
+    <p style="margin-bottom: 12px;"><strong>Máscara por defecto:</strong> ${mascara} <br> <strong>BINARIO: </strong>  (${mascaraBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Tipo de dirección:</strong> ${direccion}</p>
+    <p style="margin-bottom: 12px;"><strong>Wildcard:</strong> ${wildcard} <br> <strong>BINARIO: </strong>  (${wildcardBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Dirección de red:</strong> ${red} <br> <strong>BINARIO: </strong>  (${redBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br> <strong>BINARIO: </strong>  (${broadcastBin})</p>
+    <p style="margin-bottom: 12px;"><strong>Hosts disponibles:</strong> ${hosts}</p>
+    <p style="margin-bottom: 12px;"><strong>Bits de máscara:</strong> ${bitsMascara}</p>
+    <button id="cerrarVentana">Cerrar</button>
+`;
+
 
     document.body.appendChild(ventanaEmergente);
 
