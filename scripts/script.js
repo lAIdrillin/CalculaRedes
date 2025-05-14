@@ -1,5 +1,4 @@
 const inputs = document.querySelectorAll('#octeto1, #octeto2, #octeto3, #octeto4');
-
 const input = document.getElementById('ipCompleta');
 
 input.addEventListener('input', () => {
@@ -19,7 +18,6 @@ input.addEventListener('input', () => {
         input.style.color = '#00ff00';
     }
 });
-
 
 document.getElementById('calcular').addEventListener('click', () => {
     const ipCompleta = document.getElementById('ipCompleta').value.trim();
@@ -59,11 +57,21 @@ document.getElementById('calcular').addEventListener('click', () => {
         mascara = '255.255.255.0';
         bitsMascara = 24;
     } else if (octeto1 >= 224 && octeto1 <= 239) {
-        clase = 'Clase D';
-        mascara = 'no tiene (multicast)';
+        clase = 'Clase D (Multicast)';
+        mascara = 'No tiene (Multicast)';
+        wildcard = 'N/A';
+        red = 'N/A';
+        broadcast = 'N/A';
+        hosts = 'N/A';
+        bitsMascara = 'N/A';
     } else if (octeto1 >= 240 && octeto1 <= 255) {
-        clase = 'Clase E';
-        mascara = 'no tiene (experimental)';
+        clase = 'Clase E (Experimental)';
+        mascara = 'No tiene (Experimental)';
+        wildcard = 'N/A';
+        red = 'N/A';
+        broadcast = 'N/A';
+        hosts = 'N/A';
+        bitsMascara = 'N/A';
     } else {
         clase = 'Clase desconocida';
         mascara = 'no tiene';
@@ -80,28 +88,29 @@ document.getElementById('calcular').addEventListener('click', () => {
         direccion = 'Pública';
     }
 
-    // Calcular wildcard, red, broadcast y hosts
-    function toBin(octetos) {
-        return octetos.map(o => o.toString(2).padStart(8, '0')).join('.');
-    }
-    function parseIP(ip) {
-        return ip.split('.').map(Number);
-    }
+    // Calcular wildcard, red, broadcast y hosts solo si la clase no es D o E
+    if (bitsMascara !== 'N/A') {
+        function toBin(octetos) {
+            return octetos.map(o => o.toString(2).padStart(8, '0')).join('.');
+        }
 
-    function ipToInt(octetos) {
-        return ((octetos[0] << 24) | (octetos[1] << 16) | (octetos[2] << 8) | octetos[3]) >>> 0;
-    }
+        function parseIP(ip) {
+            return ip.split('.').map(Number);
+        }
 
-    function intToIP(int) {
-        return [
-            (int >>> 24) & 0xFF,
-            (int >>> 16) & 0xFF,
-            (int >>> 8) & 0xFF,
-            int & 0xFF
-        ].join('.');
-    }
+        function ipToInt(octetos) {
+            return ((octetos[0] << 24) | (octetos[1] << 16) | (octetos[2] << 8) | octetos[3]) >>> 0;
+        }
 
-    if (bitsMascara > 0) {
+        function intToIP(int) {
+            return [
+                (int >>> 24) & 0xFF,
+                (int >>> 16) & 0xFF,
+                (int >>> 8) & 0xFF,
+                int & 0xFF
+            ].join('.');
+        }
+
         const mascaraOctetos = bitsMascara <= 32
             ? [
                 (0xFFFFFFFF << (32 - bitsMascara) >>> 0) >>> 24,
@@ -123,73 +132,68 @@ document.getElementById('calcular').addEventListener('click', () => {
 
         hosts = bitsMascara < 31 ? (2 ** (32 - bitsMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
 
-        // Calculate binary representations
-        const ipBin = toBin(ipOctetos);
-        const mascaraBin = toBin(mascaraOctetos);
-        const redBin = toBin(red.split('.').map(Number));
-        const broadcastBin = toBin(broadcast.split('.').map(Number));
-        const wildcardBin = toBin(wildcard.split('.').map(Number));
-
         // Mostrar ventana emergente con los resultados
-        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, ipBin, mascaraBin, redBin, broadcastBin, wildcardBin);
-    } else {
-        // Handle cases for Class D and E or invalid bitsMascara
-        wildcard = 'N/A';
-        red = 'N/A';
-        broadcast = 'N/A';
-        hosts = 'N/A';
-
-        // Mostrar ventana emergente con default values
-        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, '-', '-', '-', '-', '-');
-    }
-});
-
-function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, ipBin, mascaraBin, redBin, broadcastBin, wildcardBin) {
-    const ventanaEmergente = document.createElement('div');
-    ventanaEmergente.classList.add('ventana-emergente');
-    ventanaEmergente.setAttribute('id', 'resultados');
-
-    const [octeto1, octeto2, octeto3, octeto4] = ip.split('.').map(octeto => octeto.trim());
-    const mascaraOctetos = mascara.split('.').map(Number);
-
-    // Determine the boundary between network and host parts
-    const networkBits = mascaraOctetos.map(o => o.toString(2).padStart(8, '0')).join('').indexOf('0');
-    const ipBits = ip.split('.').map(o => parseInt(o).toString(2).padStart(8, '0')).join('');
-
-    const networkPart = ipBits.slice(0, networkBits);
-    const hostPart = ipBits.slice(networkBits);
-
-    // Format the normal IP with colors
-    const ipOctetos = ip.split('.');
-    const ipFormatted = `
-        <span style="color: red;">${ipOctetos.slice(0, Math.floor(networkBits / 8)).join(' . ')}.</span>
-        <span style="color: #00ff00;">${ipOctetos.slice(Math.floor(networkBits / 8)).join(' . ')}</span>
-    `;
-
-    // Format the binary IP with colors
-    const ipBinFormatted = `
-        <span style="color: red;">${networkPart.match(/.{1,8}/g).join(' . ')}</span>
-        <span style="color: #00ff00;">.${hostPart.match(/.{1,8}/g).join(' . ')}</span>
-    `;
-
-    ventanaEmergente.innerHTML = `
-    <h2>Detalles de la IP</h2>
-    <p style="margin-bottom: 25px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> ${ipBinFormatted}</p>
-    <p style="margin-bottom: 25px;"><strong>Máscara por defecto:</strong> ${mascara} <br> <strong>BINARIO: </strong> (${mascaraBin})</p>
-    <p style="margin-bottom: 25px;"><strong>Wildcard:</strong> ${wildcard} <br> <strong>BINARIO: </strong> (${wildcardBin})</p>
-    <p style="margin-bottom: 25px;"><strong>Dirección de red:</strong> ${red} <br> <strong>BINARIO: </strong> (${redBin})</p>
-    <p style="margin-bottom: 25px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br> <strong>BINARIO: </strong> (${broadcastBin})</p>
-    <p style="margin-bottom: 25px;"><strong>Clase:</strong> ${clase}</p>
-    <p style="margin-bottom: 25px;"><strong>Hosts disponibles:</strong> ${hosts}</p>
-    <p style="margin-bottom: 25px;"><strong>Bits de máscara:</strong> ${bitsMascara}</p>
-    <p style="margin-bottom: 25px;"><strong>Tipo de dirección:</strong> ${direccion}</p>
-    <button id="cerrarVentana">Cerrar</button>
-    `;
-
-    document.body.appendChild(ventanaEmergente);
-
-    document.getElementById('cerrarVentana').addEventListener('click', () => {
-        ventanaEmergente.remove();
+        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
+        } else {
+        // Mostrar ventana emergente con N/A si la clase es D o E
+        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
+        }
     });
-}
 
+    function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara) {
+        const ventanaEmergente = document.createElement('div');
+        ventanaEmergente.classList.add('ventana-emergente');
+        ventanaEmergente.setAttribute('id', 'resultados');
+
+        let ipFormatted = ip;
+        let ipBinFormatted = ip.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
+        let mascaraBin = mascara.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
+        let wildcardBin = wildcard.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
+        let redBin = red.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
+        let broadcastBin = broadcast.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
+
+        // Apply coloring only if a valid mask exists
+        if (mascara !== 'No tiene (Multicast)' && mascara !== 'No tiene (Experimental)' && mascara !== 'no tiene') {
+            const ipOctetos = ip.split('.');
+            const mascaraOctetos = mascara.split('.').map(Number);
+
+            // Determine the boundary between network and host parts
+            const networkBits = mascaraOctetos.map(o => o.toString(2).padStart(8, '0')).join('').indexOf('0');
+            const ipBits = ip.split('.').map(o => parseInt(o).toString(2).padStart(8, '0')).join('');
+
+            const networkPart = ipBits.slice(0, networkBits);
+            const hostPart = ipBits.slice(networkBits);
+
+            // Format the IP with colors
+            ipFormatted = `
+                <span style="color: red;">${ipOctetos.slice(0, Math.floor(networkBits / 8)).join(' . ')}.</span>
+                <span style="color: green;">${ipOctetos.slice(Math.floor(networkBits / 8)).join(' . ')}</span>
+            `;
+
+            // Format the binary IP with colors
+            ipBinFormatted = `
+                <span style="color: red;">${networkPart.match(/.{1,8}/g).join('.')}</span>
+                <span style="color: green;">.${hostPart.match(/.{1,8}/g).join('.')}</span>
+            `;
+        }
+
+        ventanaEmergente.innerHTML = `
+        <h2>Detalles de la IP</h2>
+        <p style="margin-bottom: 25px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> ${ipBinFormatted}</p>
+        <p style="margin-bottom: 25px;"><strong>Máscara por defecto:</strong> ${mascara} <br><strong>BINARIO: </strong> ${mascaraBin}</p>
+        <p style="margin-bottom: 25px;"><strong>Wildcard:</strong> ${wildcard} <br><strong>BINARIO: </strong> ${wildcardBin}</p>
+        <p style="margin-bottom: 25px;"><strong>Dirección de red:</strong> ${red} <br><strong>BINARIO: </strong> ${redBin}</p>
+        <p style="margin-bottom: 25px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br><strong>BINARIO: </strong> ${broadcastBin}</p>
+        <p style="margin-bottom: 25px;"><strong>Clase:</strong> ${clase}</p>
+        <p style="margin-bottom: 25px;"><strong>Hosts disponibles:</strong> ${hosts}</p>
+        <p style="margin-bottom: 25px;"><strong>Bits de máscara:</strong> ${bitsMascara}</p>
+        <p style="margin-bottom: 25px;"><strong>Tipo de dirección:</strong> ${direccion}</p>
+        <button id="cerrarVentana">Cerrar</button>
+        `;
+
+        document.body.appendChild(ventanaEmergente);
+
+        document.getElementById('cerrarVentana').addEventListener('click', () => {
+            ventanaEmergente.remove();
+        });
+    }
