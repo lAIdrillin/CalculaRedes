@@ -82,7 +82,7 @@ document.getElementById('calcular').addEventListener('click', () => {
 
     // Calcular wildcard, red, broadcast y hosts
     function toBin(octetos) {
-        return octetos.map(o => o.toString(2).padStart(8,'0')).join('.');
+        return octetos.map(o => o.toString(2).padStart(8, '0')).join('.');
     }
     function parseIP(ip) {
         return ip.split('.').map(Number);
@@ -113,42 +113,55 @@ document.getElementById('calcular').addEventListener('click', () => {
         broadcast = intToIP(broadcastInt);
 
         hosts = bitsMascara < 31 ? (2 ** (32 - bitsMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
-        } else {
+
+        // Calculate binary representations
+        const ipBin = toBin(ipOctetos);
+        const mascaraBin = toBin(mascaraOctetos);
+        const redBin = toBin(red.split('.').map(Number));
+        const broadcastBin = toBin(broadcast.split('.').map(Number));
+        const wildcardBin = toBin(wildcard.split('.').map(Number));
+
+        // Mostrar ventana emergente con los resultados
+        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, ipBin, mascaraBin, redBin, broadcastBin, wildcardBin);
+    } else {
         wildcard = '-';
         red = '-';
         broadcast = '-';
-        }
 
-        // Mostrar ventana emergente con los resultados
-        mostrarVentanaEmergente(ip.trim(), clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
-    });
-    function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara) {
-        const ventanaEmergente = document.createElement('div');
-        ventanaEmergente.classList.add('ventana-emergente');
-        ventanaEmergente.setAttribute('id', 'resultados');
+        // Mostrar ventana emergente con default values
+        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, '-', '-', '-', '-', '-');
+    }
+});
 
-        const [octeto1, octeto2, octeto3, octeto4] = ip.split('.').map(octeto => octeto.trim());
-        const ipFormatted = `
-        <span style="color: red;">${octeto1} . ${octeto2} . ${octeto3} .
-        </span><span style="color: green;">${octeto4}</span>
-        `;
+function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara, ipBin, mascaraBin, redBin, broadcastBin, wildcardBin) {
+    const ventanaEmergente = document.createElement('div');
+    ventanaEmergente.classList.add('ventana-emergente');
+    ventanaEmergente.setAttribute('id', 'resultados');
 
-        ventanaEmergente.innerHTML = `
+    const [octeto1, octeto2, octeto3, octeto4] = ip.split('.').map(octeto => octeto.trim());
+    const ipFormatted = `
+        <span style="color: red;">${octeto1} . ${octeto2} . ${octeto3}. </span>
+        <span style="color: green;">${octeto4}</span>
+    `;
+
+    ventanaEmergente.innerHTML = `
         <h2>Detalles de la IP</h2>
-        <p><strong>IP:</strong> ${ipFormatted}</p>
+        <p><strong>IP:</strong> ${ipFormatted} (${ipBin})</p>
         <p><strong>Clase:</strong> ${clase}</p>
-        <p><strong>Máscara por defecto:</strong> ${mascara}</p>
+        <p><strong>Máscara por defecto:</strong> ${mascara} (${mascaraBin})</p>
         <p><strong>Tipo de dirección:</strong> ${direccion}</p>
-        <p><strong>Wildcard:</strong> ${wildcard}</p>
-        <p><strong>Dirección de red:</strong> ${red}</p>
-        <p><strong>Dirección de broadcast:</strong> ${broadcast}</p>
+        <p><strong>Wildcard:</strong> ${wildcard} (${wildcardBin})</p>
+        <p><strong>Dirección de red:</strong> ${red} (${redBin})</p>
+        <p><strong>Dirección de broadcast:</strong> ${broadcast} (${broadcastBin})</p>
         <p><strong>Hosts disponibles:</strong> ${hosts}</p>
         <p><strong>Bits de máscara:</strong> ${bitsMascara}</p>
         <button id="cerrarVentana">Cerrar</button>
-        `;
-        document.body.appendChild(ventanaEmergente);
+    `;
 
-        document.getElementById('cerrarVentana').addEventListener('click', () => {
+    document.body.appendChild(ventanaEmergente);
+
+    document.getElementById('cerrarVentana').addEventListener('click', () => {
         ventanaEmergente.remove();
-        });
-    }
+    });
+}
+
