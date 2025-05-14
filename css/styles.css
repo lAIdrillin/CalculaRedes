@@ -12,8 +12,9 @@ table {
     border: 2px solid #00ff00;
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     border-collapse: collapse;
-    width: 70%;  
-    height: 50%;
+    width: 30%;  
+    height: 60%;
+    opacity: 1;
     text-align: center;
     background-color: rgb(12, 12, 12);
 }
@@ -35,16 +36,23 @@ input {
     border-radius: 20px;
 }
 
-
-
+#ipCompleta{
+    border: 1px solid #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    color: #00ff00;
+    background-color: rgb(12, 12, 12);
+    margin-top: 15px; 
+    text-align: center;
+    border-radius: 20px;
+}
 #calcular {
     background-color: #00ff00;
     color: rgb(0, 0, 0);
-    margin: 10px;
     padding: 10px 20px;
     border: none;
     cursor: pointer;
     border-radius: 6px;
+    font-family: 'Orbitron', sans-serif;
 }
 
 #calcular:hover {
@@ -77,4 +85,36 @@ input[type="number"]::-webkit-outer-spin-button {
     }
     .ip{
         color:#00ff00;
+        margin-top: 4%;
+    }
+
+    #cerrarVentana {
+
+        background-color: #00ff00;
+        border: none;
+        font-family: 'Orbitron';
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        margin-left: 45%;
+        padding: 10px;
+        cursor: pointer;
+    }
+    #resultados {
+        width: 70%;
+        margin-top: 5%;
+        margin-bottom: 5%;
+        padding: 20px;
+        border: 2px solid #00ff00;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        opacity: 1;
+        color: rgba(0, 0, 0, 0.8);
+        font-family: 'Orbitron';
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #00ff00;
+        display: block;
+        position: fixed;
+        scrollbar-color: #00ff00 #000000; /* Scrollbar color */
+        max-height: 80%; /* Limit the height */
+        overflow-y: auto; /* Add vertical scroll if content overflows */
+        scrollbar-color: #00ff00 rgba(0, 0, 0, 0.8); /* Set green scroll color */
+        scrollbar-width: auto; /* Make the scrollbar thinner */
     }
