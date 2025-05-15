@@ -21,6 +21,7 @@ input.addEventListener('input', () => {
         }
     }
 
+    
     // Validar la dirección IP
     if (
         octetos.length !== 4 || 
