@@ -1,293 +1,169 @@
-const inputs = document.querySelectorAll('#octeto1, #octeto2, #octeto3, #octeto4');
-const input = document.getElementById('ipCompleta');
+(function(){
+  const ipInput   = document.getElementById('ipCompleta');
+  const maskInput = document.getElementById('subnetCompleta');
+  const btnLocal  = document.getElementById('btnLocalIP');
+  const btnCalc   = document.getElementById('calcular');
+  const btnHist   = document.getElementById('verHistorial');
+  const histDiv   = document.getElementById('resumen-sesiones');
 
-input.addEventListener('input', () => {
-    const ipCompleta = input.value.trim();
-    const octetos = ipCompleta.split('.').map(octeto => parseInt(octeto));
+  // 1) Auto-cargar IP pública
+  fetch('https://api.ipify.org?format=json')
+    .then(r => r.json())
+    .then(d => {
+      ipInput.value = d.ip;
+      validateIp();
+    }).catch(()=>{});
 
-    // Autocompletar mascaraRed dinámicamente
-    const mascaraRed = document.getElementById('subnetCompleta');
-    if (octetos.length === 4 && octetos.every(o => !isNaN(o) && o >= 0 && o <= 255)) {
-        if (octetos[0] >= 1 && octetos[0] <= 126) {
-            mascaraRed.value = 8;
-        } else if (octetos[0] >= 128 && octetos[0] <= 191) {
-            mascaraRed.value = 16;
-        } else if (octetos[0] >= 192 && octetos[0] <= 223) {
-            mascaraRed.value = 24;
-        } else if (octetos[0] >= 224 && octetos[0] <= 239) {
-            mascaraRed.value = 'N/A';
-        } else if (octetos[0] >= 240 && octetos[0] <= 255) {
-            mascaraRed.value = 'N/A';
-        }
+  // 2) Validación visual IP y máscara
+  function validateIp() {
+    const val = ipInput.value.trim();
+    const regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    let ok = regex.test(val);
+    if (ok) {
+      const octs = val.split('.').map(n=>parseInt(n,10));
+      ok = octs.every(o=>o>=0 && o<=255);
     }
+    setStyle(ipInput, ok);
+  }
 
-    
-    // Validar la dirección IP
-    if (
-        octetos.length !== 4 || 
-        octetos.some(octeto => isNaN(octeto) || octeto < 0 || octeto > 255)
-    ) {
-        input.style.borderColor = 'red';
-        input.style.boxShadow = '0 0 5px red';
-        input.style.color = 'red';
+  function validateMask() {
+    const v = parseInt(maskInput.value,10);
+    setStyle(maskInput, !isNaN(v) && v>=8 && v<=30);
+  }
+
+  function setStyle(el, valid) {
+    if (valid) {
+      el.style.borderColor = '#00ff00';
+      el.style.boxShadow   = '0 0 5px #00ff00';
+      el.style.color       = '#00ff00';
     } else {
-        input.style.borderColor = '#00ff00';
-        input.style.boxShadow = '0 0 5px #00ff00';
-        input.style.color = '#00ff00';
+      el.style.borderColor = 'red';
+      el.style.boxShadow   = '0 0 5px red';
+      el.style.color       = 'red';
     }
-});
+  }
 
-document.getElementById('calcular').addEventListener('click', () => {
-    const ipCompleta = document.getElementById('ipCompleta').value.trim();
-    const mascaraInput = document.getElementById('mascaraInput').value.trim();
-    const octetos = ipCompleta.split('.').map(octeto => parseInt(octeto));
-    const resultadoDiv = document.getElementById('resultado');
+  ipInput.addEventListener('input', validateIp);
+  maskInput.addEventListener('input', validateMask);
 
-    if (
-        octetos.length !== 4 || 
-        octetos.some(octeto => isNaN(octeto) || octeto < 0 || octeto > 255)
-    ) {
-        resultadoDiv.innerHTML = '<p class="error">Por favor, ingresa una dirección IP válida con 4 octetos separados por puntos.</p>';
-        return;
+  // 3) Rellenar máscara por defecto al blur de IP
+  ipInput.addEventListener('blur', () => {
+    const first = parseInt(ipInput.value.split('.')[0],10);
+    if      (first>=1 && first<=126)     maskInput.value = 8;
+    else if (first>=128 && first<=191)   maskInput.value = 16;
+    else if (first>=192 && first<=223)   maskInput.value = 24;
+    validateMask();
+  });
+
+  // 4) Obtener IP Local via WebRTC
+  btnLocal.addEventListener('click', () => {
+    let found = false;
+    const pc = new RTCPeerConnection({iceServers:[]});
+    pc.createDataChannel('');
+    pc.createOffer().then(o=>pc.setLocalDescription(o));
+    pc.onicecandidate = e => {
+      if (!e.candidate) { pc.close(); return; }
+      const m = e.candidate.candidate.match(/(\d{1,3}(?:\.\d{1,3}){3})/);
+      if (m && !found) {
+        found = true;
+        ipInput.value = m[1];
+        validateIp();
+        pc.close();
+      }
+    };
+    setTimeout(()=>pc.close(),1500);
+  });
+
+  // 5) Coloreado binario bit a bit
+  function colorBin(binStr, netBits, subBits) {
+    const bits = binStr.replace(/\./g,'');
+    let html = '';
+    for (let i = 0; i < bits.length; i++) {
+      const bit = bits[i];
+      let color = i < netBits ? 'red' : (i < subBits ? 'orange' : 'limegreen');
+      html += `<span style="color:${color};">${bit}</span>`;
+      if ((i+1) % 8 === 0 && i < bits.length - 1) html += '.';
     }
+    return html;
+  }
 
-    const [octeto1, octeto2, octeto3, octeto4] = octetos;
-    const ip = `${octeto1}.${octeto2}.${octeto3}.${octeto4}`;
-    let clase = '';
-    let mascara = '';
-    let direccion = '';
-    let wildcard = '';
-    let red = '';
-    let broadcast = '';
-    let hosts = '-';
-    let bitsMascara = 24; 
-    let mascaraOctetos = [];
+  // 6) Modal
+  function showModal(html) {
+    document.getElementById('resultados')?.remove();
+    const div = document.createElement('div');
+    div.id = 'resultados';
+    div.className = 'ventana-emergente';
+    div.innerHTML = html + '<button id="cerrarVentana">Cerrar</button>';
+    document.body.appendChild(div);
+    document.getElementById('cerrarVentana').onclick = () => div.remove();
+  }
 
-    if(/^\d{1,2}$/.test(mascaraInput)){
-        bitsMascara = parseInt(mascaraInput);
-        if (bitsMascara < 0 || bitsMascara > 32) {
-            resultadoDiv.innerHTML = '<p class="error">Por favor, ingresa una máscara válida entre 0 y 32.</p>';
-            return;
-        }
-        const mask = (0xFFFFFFFF << (32 - bitsMascara)) >>> 0;
-        mascaraOctetos = [
-            (mask >>> 24) & 0xFF,
-            (mask >>> 16) & 0xFF,
-            (mask >>> 8) & 0xFF,
-            mask & 0xFF
-        ];
-        mascara = mascaraOctetos.join('.');
-    } else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(mascaraInput)) {
-        mascaraOctetos = mascaraInput.split('.').map(Number);
-        if(
-            mascaraOctetos.lenght !== 4 ||
-            mascaraOctetos.some(o => isNaN(o) || o < 0 || o > 255)
-        ){
-            resultadoDiv.innerHTML = '<p class="error>La mascara debe tener 4 octetos entre 0 y 255.</p>';
-            return;
-        }
-        bitsMascara = maskInt.toString(2).replace(/0/g, '').length;
-        mascara = mascaraInput;
-    } else{
-        resultadoDiv.innerHTML = '<p class="error">Introduce la mascara en formato decimal (255.255.255.0) o de bits (24).</p>';
-        return;
+  // 7) Calcular
+  btnCalc.addEventListener('click', () => {
+    validateIp(); validateMask();
+    const valIp = ipInput.value.trim();
+    const valM  = parseInt(maskInput.value,10);
+    const regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if (!regex.test(valIp) || valM < 8 || valM > 30) {
+      return showModal('<p class="error">IP o máscara inválidas.</p>');
     }
-
-    // Determinar la clase de red
-    if (octeto1 >= 1 && octeto1 <= 126) {
-        clase = 'Clase A';
-        mascara = '255.0.0.0';
-        bitsMascara = 8;
-    } else if (octeto1 >= 128 && octeto1 <= 191) {
-        clase = 'Clase B';
-        mascara = '255.255.0.0';
-        bitsMascara = 16;
-    } else if (octeto1 >= 192 && octeto1 <= 223) {
-        clase = 'Clase C';
-        mascara = '255.255.255.0';
-        bitsMascara = 24;
-    } else if (octeto1 >= 224 && octeto1 <= 239) {
-        clase = 'Clase D (Multicast)';
-        mascara = 'No tiene (Multicast)';
-        wildcard = 'N/A';
-        red = 'N/A';
-        broadcast = 'N/A';
-        hosts = 'N/A';
-        bitsMascara = 'N/A';
-    } else if (octeto1 >= 240 && octeto1 <= 255) {
-        clase = 'Clase E (Experimental)';
-        mascara = 'No tiene (Experimental)';
-        wildcard = 'N/A';
-        red = 'N/A';
-        broadcast = 'N/A';
-        hosts = 'N/A';
-        bitsMascara = 'N/A';
-    } else {
-        clase = 'Clase desconocida';
-        mascara = 'no tiene';
+    const octs = valIp.split('.').map(n=>parseInt(n,10));
+    if (octs.some(o=>o<0||o>255)) {
+      return showModal('<p class="error">IP inválida.</p>');
     }
+    const [a,b2,b3,b4] = octs;
+    const b = valM;
+    const defBits = a<=126?8:(a<=191?16:24);
+    const maskInt = (0xFFFFFFFF << (32-b))>>>0;
+    const maskOct = [(maskInt>>>24)&0xFF,(maskInt>>>16)&0xFF,(maskInt>>>8)&0xFF,maskInt&0xFF];
+    const maskDec = maskOct.join('.');
+    const wild    = maskOct.map(x=>255-x).join('.');
+    const ipInt   = ((a<<24)|(b2<<16)|(b3<<8)|b4)>>>0;
+    const netInt  = ipInt & maskInt;
+    const bcInt   = netInt | (~maskInt>>>0);
+    const hosts   = b<31?2**(32-b)-2:(b===31?2:1);
+    const minH    = b<31?netInt+1:netInt;
+    const maxH    = b<31?bcInt-1:(b===31?netInt+1:netInt);
+    const intToIp = i=>[(i>>>24)&0xFF,(i>>>16)&0xFF,(i>>>8)&0xFF,i&0xFF].join('.');
+    const subs    = b>defBits?2**(b-defBits):1;
+    const hexIp   = octs.map(x=>x.toString(16).padStart(2,'0')).join('.');
+    const ipBin   = octs.map(x=>x.toString(2).padStart(8,'0')).join('.')
+    const maskBin = maskOct.map(x=>x.toString(2).padStart(8,'0')).join('.')
+    const wildBin = wild.split('.').map(x=>parseInt(x).toString(2).padStart(8,'0')).join('.')
+    const netBin  = intToIp(netInt).split('.').map(x=>parseInt(x).toString(2).padStart(8,'0')).join('.')
+    const bcBin   = intToIp(bcInt).split('.').map(x=>parseInt(x).toString(2).padStart(8,'0')).join('.')
+    const html = `
+      <h2>Detalles</h2>
+      <p><strong>IP:</strong> ${valIp}<br><strong>BIN:</strong> ${colorBin(ipBin,defBits,b)}</p>
+      <p><strong>Mask /${b}:</strong> ${maskDec}<br><strong>BIN:</strong> ${colorBin(maskBin,defBits,b)}</p>
+      <p><strong>Wildcard:</strong> ${wild}<br><strong>BIN:</strong> ${colorBin(wildBin,defBits,b)}</p>
+      <p><strong>Red:</strong> ${intToIp(netInt)}<br><strong>BIN:</strong> ${colorBin(netBin,defBits,b)}</p>
+      <p><strong>Broadcast:</strong> ${intToIp(bcInt)}<br><strong>BIN:</strong> ${colorBin(bcBin,defBits,b)}</p>
+      <p><strong>Clase:</strong> ${defBits===8?'A':defBits===16?'B':'C'}</p>
+      <p><strong>Subredes:</strong> ${subs}</p>
+      <p><strong>Hosts totales:</strong> ${hosts}</p>
+      <p><strong>Host mínimo:</strong> ${intToIp(minH)}</p>
+      <p><strong>Host máximo:</strong> ${intToIp(maxH)}</p>
+      <p><strong>IP hex:</strong> ${hexIp}</p>
+    `;
+    showModal(html);
+    // guardar historial
+    const ses = JSON.parse(localStorage.getItem('sesiones')||'[]');
+    ses.push({time:Date.now(),ip:valIp,mask:b,red:intToIp(netInt),bc:intToIp(bcInt),hosts,subs,hex:hexIp});
+    localStorage.setItem('sesiones',JSON.stringify(ses));
+  });
 
-
-    // Determinar si la dirección es privada o pública
-    if (
-        (octeto1 === 10) ||
-        (octeto1 === 172 && octeto2 >= 16 && octeto2 <= 31) ||
-        (octeto1 === 192 && octeto2 === 168)
-    ) {
-        direccion = 'Privada';
-    } else {
-        direccion = 'Pública';
-    }
-
-    // Calcular wildcard, red, broadcast y hosts solo si la clase no es D o E
-    if (bitsMascara !== 'N/A') {
-        function toBin(octetos) {
-            return octetos.map(o => o.toString(2).padStart(8, '0')).join('.');
-        }
-
-        function parseIP(ip) {
-            return ip.split('.').map(Number);
-        }
-
-        function ipToInt(octetos) {
-            return ((octetos[0] << 24) | (octetos[1] << 16) | (octetos[2] << 8) | octetos[3]) >>> 0;
-        }
-
-        function intToIP(int) {
-            return [
-                (int >>> 24) & 0xFF,
-                (int >>> 16) & 0xFF,
-                (int >>> 8) & 0xFF,
-                int & 0xFF
-            ].join('.');
-        }
-
-        const mascaraOctetos = bitsMascara <= 32
-            ? [
-                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) >>> 24,
-                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) >>> 16 & 0xFF,
-                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) >>> 8 & 0xFF,
-                (0xFFFFFFFF << (32 - bitsMascara) >>> 0) & 0xFF
-            ]
-            : [255, 255, 255, 255]; // Default to full mask if bitsMascara > 32
-        mascara = mascaraOctetos.join('.');
-
-        wildcard = mascaraOctetos.map(o => 255 - o).join('.');
-
-        const ipOctetos = [octeto1, octeto2, octeto3, octeto4];
-        const redInt = ipToInt(ipOctetos) & ipToInt(mascaraOctetos);
-        red = intToIP(redInt);
-
-        const broadcastInt = redInt | ipToInt(wildcard.split('.').map(Number));
-        broadcast = intToIP(broadcastInt);
-
-        hosts = bitsMascara < 31 ? (2 ** (32 - bitsMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
-        
-
-        // Mostrar ventana emergente con los resultados
-        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
-        } else {
-        // Mostrar ventana emergente con N/A si la clase es D o E
-        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
-        }
+  // 8) Historial
+  btnHist.addEventListener('click',()=>{
+    const ses = JSON.parse(localStorage.getItem('sesiones')||'[]');
+    let html='<h2>Historial</h2>';
+    if(!ses.length) html+='<p>No hay sesiones.</p>';
+    else ses.forEach(s=>{
+      html+=`<div style="margin-bottom:8px;border-bottom:1px solid #00ff00;padding:4px 0;">
+        <strong>${new Date(s.time).toLocaleString('es-ES')}:</strong>
+        IP ${s.ip}/${s.mask}, red ${s.red}, bc ${s.bc}, hosts ${s.hosts}, subs ${s.subs}, hex ${s.hex}
+      </div>`;
     });
-
-    function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara) {
-        const ventanaEmergente = document.createElement('div');
-        ventanaEmergente.classList.add('ventana-emergente');
-        ventanaEmergente.setAttribute('id', 'resultados');
-
-        let ipFormatted = ip;
-        let ipBinFormatted = ip.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
-        let mascaraBin = mascara.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
-        let wildcardBin = wildcard.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
-        let redBin = red.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
-        let broadcastBin = broadcast.split('.').map(octeto => parseInt(octeto).toString(2).padStart(8, '0')).join('.');
-
-        // Apply coloring only if a valid mask exists
-        if (mascara !== 'No tiene (Multicast)' && mascara !== 'No tiene (Experimental)' && mascara !== 'no tiene') {
-            const ipOctetos = ip.split('.');
-            const mascaraOctetos = mascara.split('.').map(Number);
-
-            // Determine the boundary between network and host parts
-            const networkBits = mascaraOctetos.map(o => o.toString(2).padStart(8, '0')).join('').indexOf('0');
-            const ipBits = ip.split('.').map(o => parseInt(o).toString(2).padStart(8, '0')).join('');
-
-            const networkPart = ipBits.slice(0, networkBits);
-            const hostPart = ipBits.slice(networkBits);
-
-            // Format the IP with colors
-            ipFormatted = `
-                <span style="color: red;">${ipOctetos.slice(0, Math.floor(networkBits / 8)).join(' . ')}.</span>
-                <span style="color: green;">${ipOctetos.slice(Math.floor(networkBits / 8)).join(' . ')}</span>
-            `;
-
-            // Format the binary IP with colors
-            ipBinFormatted = `
-                <span style="color: red;">${networkPart.match(/.{1,8}/g).join('.')}</span>
-                <span style="color: green;">.${hostPart.match(/.{1,8}/g).join('.')}</span>
-            `;
-        }
-
-        ventanaEmergente.innerHTML = `
-        <h2>Detalles de la IP</h2>
-        <p style="margin-bottom: 25px;"><strong>IP:</strong> ${ipFormatted} <br><strong>BINARIO: </strong> ${ipBinFormatted}</p>
-        <p style="margin-bottom: 25px;"><strong>Máscara por defecto:</strong> ${mascara} <br><strong>BINARIO: </strong> ${mascaraBin}</p>
-        <p style="margin-bottom: 25px;"><strong>Wildcard:</strong> ${wildcard} <br><strong>BINARIO: </strong> ${wildcardBin}</p>
-        <p style="margin-bottom: 25px;"><strong>Dirección de red:</strong> ${red} <br><strong>BINARIO: </strong> ${redBin}</p>
-        <p style="margin-bottom: 25px;"><strong>Dirección de broadcast:</strong> ${broadcast} <br><strong>BINARIO: </strong> ${broadcastBin}</p>
-        <p style="margin-bottom: 25px;"><strong>Clase:</strong> ${clase}</p>
-        <p style="margin-bottom: 25px;"><strong>Hosts disponibles:</strong> ${hosts}</p>
-        <p style="margin-bottom: 25px;"><strong>Bits de máscara:</strong> ${bitsMascara}</p>
-        <p style="margin-bottom: 25px;"><strong>Tipo de dirección:</strong> ${direccion}</p>
-        <button id="cerrarVentana">Cerrar</button>
-        `;
-
-        document.body.appendChild(ventanaEmergente);
-
-        document.getElementById('cerrarVentana').addEventListener('click', () => {
-            ventanaEmergente.remove();
-        });
-    }
-
-
-
-    
-
-    // Botón para completar con la IP local del equipo (no funciona)
-    document.getElementById('btnLocalIP').addEventListener('click', () => {
-
-        let ipFound = false;
-        try {
-            const pc = new RTCPeerConnection({iceServers:[]});
-            pc.createDataChannel('');
-            pc.createOffer().then(offer => pc.setLocalDescription(offer));
-            pc.onicecandidate = (event) => {
-                if (!event || !event.candidate) return;
-                const ipMatch = event.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
-                if (ipMatch) {
-                    document.getElementById('ipCompleta').value = ipMatch[1];
-                    // Disparar el evento input para autocompletar la máscara
-                    document.getElementById('ipCompleta').dispatchEvent(new Event('input'));
-                    ipFound = true;
-                    pc.close();
-                }
-            };
-            setTimeout(() => { if (!ipFound) pc.close(); }, 1500);
-        } catch (e) {
-            alert('No se pudo obtener la IP local.');
-        }
-    });
-
-// Al cargar la página, poner por defecto la IP pública real
-window.addEventListener('DOMContentLoaded', () => {
-    fetch('https://api.ipify.org?format=json')
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('ipCompleta').value = data.ip;
-            document.getElementById('ipCompleta').dispatchEvent(new Event('input'));
-        })
-        .catch(() => {
-            // Si falla, no hacer nada
-        });
-});
+    showModal(html);
+  });
+})();
