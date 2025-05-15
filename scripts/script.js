@@ -174,7 +174,7 @@
     mascaraOctetos.push(mascaraInt & 255);
   
     const mascaraDecimal = mascaraOctetos.join('.');
-    const comodin = mascaraOctetos.map((x) => 255 - x).join('.');
+    const wildcard = mascaraOctetos.map((x) => 255 - x).join('.');
     const ipInt = ((a << 24) | (b2 << 16) | (b3 << 8) | b4) >>> 0;
     const redInt = ipInt & mascaraInt;
     const bcInt = redInt | (~mascaraInt >>> 0);
@@ -191,7 +191,7 @@
     const mascaraBinaria = mascaraOctetos
       .map((x) => x.toString(2).padStart(8, '0'))
       .join('.');
-    const comodinBinario = comodin
+    const wildcardBinario = wildcard
       .split('.')
       .map((x) => parseInt(x).toString(2).padStart(8, '0'))
       .join('.');
@@ -210,7 +210,7 @@
       <p><strong>IP:</strong> ${valorIp} (${esPriv})</p>
       <p><strong>BIN:</strong> ${colorearBinario(ipBinaria, bitsDefecto, bits)}</p>
       <p><strong>Máscara /${bits}:</strong> ${mascaraDecimal} (${colorearBinario(mascaraBinaria, bitsDefecto, bits)})</p>
-      <p><strong>Comodín:</strong> ${comodin} (${colorearBinario(comodinBinario, bitsDefecto, bits)})</p>
+      <p><strong>WildCard:</strong> ${wildcard} (${colorearBinario(wildcardBinario, bitsDefecto, bits)})</p>
       <p><strong>Red:</strong> ${intAip(redInt)} (${colorearBinario(redBinaria, bitsDefecto, bits)})</p>
       <p><strong>Broadcast:</strong> ${intAip(bcInt)} (${colorearBinario(bcBinaria, bitsDefecto, bits)})</p>
       <p><strong>Clase:</strong> ${
@@ -224,5 +224,5 @@
     `;
     mostrarModal(html);
   });
-  
+
 })();
