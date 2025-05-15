@@ -53,5 +53,5 @@ prueba y error
 - Optamos por una estética moderna inspirada en el estilo "Matrix".
 
 ### Ideas de Mejora Futura
-- Añadir más estilos CSS para mejorar la apariencia de la página.
+- Añadir más estilos CSS para mejorar la apariencia de la página. 
 
