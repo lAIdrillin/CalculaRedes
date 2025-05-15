@@ -20,15 +20,15 @@
     const regex = /^(\d{1,3}\.){3}\d{1,3}$/;
     let ok = regex.test(val);
     if (ok) {
-      const octs = val.split('.').map(n=>parseInt(n,10));
-      ok = octs.every(o=>o>=0 && o<=255);
+      const octs = val.split('.').map(n => parseInt(n,10));
+      ok = octs.every(o => o >= 0 && o <= 255);
     }
     setStyle(ipInput, ok);
   }
 
   function validateMask() {
     const v = parseInt(maskInput.value,10);
-    setStyle(maskInput, !isNaN(v) && v>=8 && v<=30);
+    setStyle(maskInput, !isNaN(v) && v >= 8 && v <= 30);
   }
 
   function setStyle(el, valid) {
@@ -49,9 +49,9 @@
   // 3) Rellenar máscara por defecto al blur de IP
   ipInput.addEventListener('blur', () => {
     const first = parseInt(ipInput.value.split('.')[0],10);
-    if      (first>=1 && first<=126)     maskInput.value = 8;
-    else if (first>=128 && first<=191)   maskInput.value = 16;
-    else if (first>=192 && first<=223)   maskInput.value = 24;
+    if      (first >= 1 && first <= 126)     maskInput.value = 8;
+    else if (first >= 128 && first <= 191)   maskInput.value = 16;
+    else if (first >= 192 && first <= 223)   maskInput.value = 24;
     validateMask();
   });
 
@@ -60,7 +60,7 @@
     let found = false;
     const pc = new RTCPeerConnection({iceServers:[]});
     pc.createDataChannel('');
-    pc.createOffer().then(o=>pc.setLocalDescription(o));
+    pc.createOffer().then(o => pc.setLocalDescription(o));
     pc.onicecandidate = e => {
       if (!e.candidate) { pc.close(); return; }
       const m = e.candidate.candidate.match(/(\d{1,3}(?:\.\d{1,3}){3})/);
@@ -71,7 +71,7 @@
         pc.close();
       }
     };
-    setTimeout(()=>pc.close(),1500);
+    setTimeout(() => pc.close(), 1500);
   });
 
   // 5) Coloreado binario bit a bit
@@ -80,88 +80,123 @@
     let html = '';
     for (let i = 0; i < bits.length; i++) {
       const bit = bits[i];
-      let color = i < netBits ? 'red' : (i < subBits ? 'orange' : 'limegreen');
-      html += `<span style="color:${color};">${bit}</span>`;
-      if ((i+1) % 8 === 0 && i < bits.length - 1) html += '.';
+      const color = i < netBits ? 'red' : (i < subBits ? 'orange' : 'limegreen');
+      html += `<span style=\"color:${color};\">${bit}</span>`;
+      if ((i + 1) % 8 === 0 && i < bits.length - 1) html += '.';
     }
     return html;
   }
 
-  // 6) Modal
+  // 6) Comprueba si IP es privada
+  function isPrivateIp(octs) {
+    const [o1,o2] = octs;
+    return (o1 === 10) ||
+           (o1 === 172 && o2 >= 16 && o2 <= 31) ||
+           (o1 === 192 && o2 === 168);
+  }
+
+  // 7) Modal
   function showModal(html) {
     document.getElementById('resultados')?.remove();
     const div = document.createElement('div');
     div.id = 'resultados';
     div.className = 'ventana-emergente';
-    div.innerHTML = html + '<button id="cerrarVentana">Cerrar</button>';
+    div.innerHTML = html + '<button id=\"cerrarVentana\">Cerrar</button>';
     document.body.appendChild(div);
     document.getElementById('cerrarVentana').onclick = () => div.remove();
   }
 
-  // 7) Calcular
+  // 8) Calcular y mostrar resumen
   btnCalc.addEventListener('click', () => {
     validateIp(); validateMask();
     const valIp = ipInput.value.trim();
     const valM  = parseInt(maskInput.value,10);
     const regex = /^(\d{1,3}\.){3}\d{1,3}$/;
     if (!regex.test(valIp) || valM < 8 || valM > 30) {
-      return showModal('<p class="error">IP o máscara inválidas.</p>');
+      return showModal('<p class=\"error\">IP o máscara inválidas.</p>');
     }
-    const octs = valIp.split('.').map(n=>parseInt(n,10));
-    if (octs.some(o=>o<0||o>255)) {
-      return showModal('<p class="error">IP inválida.</p>');
+    const octs = valIp.split('.').map(n => parseInt(n,10));
+    if (octs.some(o => o < 0 || o > 255)) {
+      return showModal('<p class=\"error\">IP inválida.</p>');
     }
     const [a,b2,b3,b4] = octs;
     const b = valM;
-    const defBits = a<=126?8:(a<=191?16:24);
-    const maskInt = (0xFFFFFFFF << (32-b))>>>0;
-    const maskOct = [(maskInt>>>24)&0xFF,(maskInt>>>16)&0xFF,(maskInt>>>8)&0xFF,maskInt&0xFF];
+    const defBits = a <= 126 ? 8 : (a <= 191 ? 16 : 24);
+    const maskInt = (0xFFFFFFFF << (32 - b)) >>> 0;
+    const maskOct = [
+      (maskInt >>> 24) & 0xFF,
+      (maskInt >>> 16) & 0xFF,
+      (maskInt >>> 8) & 0xFF,
+      maskInt & 0xFF
+    ];
     const maskDec = maskOct.join('.');
-    const wild    = maskOct.map(x=>255-x).join('.');
-    const ipInt   = ((a<<24)|(b2<<16)|(b3<<8)|b4)>>>0;
+    const wild    = maskOct.map(x => 255 - x).join('.');
+    const ipInt   = ((a << 24) | (b2 << 16) | (b3 << 8) | b4) >>> 0;
     const netInt  = ipInt & maskInt;
-    const bcInt   = netInt | (~maskInt>>>0);
-    const hosts   = b<31?2**(32-b)-2:(b===31?2:1);
-    const minH    = b<31?netInt+1:netInt;
-    const maxH    = b<31?bcInt-1:(b===31?netInt+1:netInt);
-    const intToIp = i=>[(i>>>24)&0xFF,(i>>>16)&0xFF,(i>>>8)&0xFF,i&0xFF].join('.');
-    const subs    = b>defBits?2**(b-defBits):1;
-    const hexIp   = octs.map(x=>x.toString(16).padStart(2,'0')).join('.');
-    const ipBin   = octs.map(x=>x.toString(2).padStart(8,'0')).join('.')
-    const maskBin = maskOct.map(x=>x.toString(2).padStart(8,'0')).join('.')
-    const wildBin = wild.split('.').map(x=>parseInt(x).toString(2).padStart(8,'0')).join('.')
-    const netBin  = intToIp(netInt).split('.').map(x=>parseInt(x).toString(2).padStart(8,'0')).join('.')
-    const bcBin   = intToIp(bcInt).split('.').map(x=>parseInt(x).toString(2).padStart(8,'0')).join('.')
+    const bcInt   = netInt | (~maskInt >>> 0);
+    const totalHosts = b < 31 ? 2 ** (32 - b) - 2 : (b === 31 ? 2 : 1);
+    const minHost    = b < 31 ? netInt + 1 : netInt;
+    const maxHost    = b < 31 ? bcInt - 1 : (b === 31 ? netInt + 1 : netInt);
+    const intToIp = i => [
+      (i >>> 24) & 0xFF,
+      (i >>> 16) & 0xFF,
+      (i >>> 8) & 0xFF,
+      i & 0xFF
+    ].join('.');
+    const subnets = b > defBits ? 2 ** (b - defBits) : 1;
+    const hexIp   = octs.map(x => x.toString(16).padStart(2,'0')).join('.');
+    const ipBin   = octs.map(x => x.toString(2).padStart(8,'0')).join('.');
+    const maskBin = maskOct.map(x => x.toString(2).padStart(8,'0')).join('.');
+    const wildBin = wild.split('.').map(x => parseInt(x).toString(2).padStart(8,'0')).join('.');
+    const netBin  = intToIp(netInt).split('.').map(x => parseInt(x).toString(2).padStart(8,'0')).join('.');
+    const bcBin   = intToIp(bcInt).split('.').map(x => parseInt(x).toString(2).padStart(8,'0')).join('.');
+    const isPriv = isPrivateIp(octs) ? 'Privada' : 'Pública';
+
     const html = `
-      <h2>Detalles</h2>
-      <p><strong>IP:</strong> ${valIp}<br><strong>BIN:</strong> ${colorBin(ipBin,defBits,b)}</p>
-      <p><strong>Mask /${b}:</strong> ${maskDec}<br><strong>BIN:</strong> ${colorBin(maskBin,defBits,b)}</p>
-      <p><strong>Wildcard:</strong> ${wild}<br><strong>BIN:</strong> ${colorBin(wildBin,defBits,b)}</p>
-      <p><strong>Red:</strong> ${intToIp(netInt)}<br><strong>BIN:</strong> ${colorBin(netBin,defBits,b)}</p>
-      <p><strong>Broadcast:</strong> ${intToIp(bcInt)}<br><strong>BIN:</strong> ${colorBin(bcBin,defBits,b)}</p>
+      <h2>Detalles de la IP</h2>
+      <p><strong>IP:</strong> ${valIp} (${isPriv})</p>
+      <p><strong>BIN:</strong> ${colorBin(ipBin, defBits, b)}</p>
+      <p><strong>Mask /${b}:</strong> ${maskDec} (${colorBin(maskBin, defBits, b)})</p>
+      <p><strong>Wildcard:</strong> ${wild} (${colorBin(wildBin, defBits, b)})</p>
+      <p><strong>Red:</strong> ${intToIp(netInt)} (${colorBin(netBin, defBits, b)})</p>
+      <p><strong>Broadcast:</strong> ${intToIp(bcInt)} (${colorBin(bcBin, defBits, b)})</p>
       <p><strong>Clase:</strong> ${defBits===8?'A':defBits===16?'B':'C'}</p>
-      <p><strong>Subredes:</strong> ${subs}</p>
-      <p><strong>Hosts totales:</strong> ${hosts}</p>
-      <p><strong>Host mínimo:</strong> ${intToIp(minH)}</p>
-      <p><strong>Host máximo:</strong> ${intToIp(maxH)}</p>
-      <p><strong>IP hex:</strong> ${hexIp}</p>
+      <p><strong>Número de subredes:</strong> ${subnets}</p>
+      <p><strong>Hosts totales:</strong> ${totalHosts}</p>
+      <p><strong>Host mínimo:</strong> ${intToIp(minHost)}</p>
+      <p><strong>Host máximo:</strong> ${intToIp(maxHost)}</p>
+      <p><strong>IP hexadecimal:</strong> ${hexIp}</p>
     `;
     showModal(html);
+
     // guardar historial
     const ses = JSON.parse(localStorage.getItem('sesiones')||'[]');
-    ses.push({time:Date.now(),ip:valIp,mask:b,red:intToIp(netInt),bc:intToIp(bcInt),hosts,subs,hex:hexIp});
-    localStorage.setItem('sesiones',JSON.stringify(ses));
+    ses.push({
+      time: Date.now(),
+      ip: valIp,
+      mask: b,
+      red: intToIp(netInt),
+      bc: intToIp(bcInt),
+      subs: subnets,
+      hosts: totalHosts,
+      min: intToIp(minHost),
+      max: intToIp(maxHost),
+      hex: hexIp,
+      priv: isPriv
+    });
+    localStorage.setItem('sesiones', JSON.stringify(ses));
   });
 
-  // 8) Historial
-  btnHist.addEventListener('click',()=>{
+  // 9) Historial
+  btnHist.addEventListener('click', () => {
     const ses = JSON.parse(localStorage.getItem('sesiones')||'[]');
-    let html='<h2>Historial</h2>';
-    if(!ses.length) html+='<p>No hay sesiones.</p>';
-    else ses.forEach(s=>{
-      html+=`<div style="margin-bottom:8px;border-bottom:1px solid #00ff00;padding:4px 0;">
+    let html = '<h2>Historial</h2>';
+    if (!ses.length) html += '<p>No hay sesiones.</p>';
+    else ses.forEach(s => {
+      html += `<div style=\"margin-bottom:8px;border-bottom:1px solid #00ff00;padding:4px 0;\">
         <strong>${new Date(s.time).toLocaleString('es-ES')}:</strong>
-        IP ${s.ip}/${s.mask}, red ${s.red}, bc ${s.bc}, hosts ${s.hosts}, subs ${s.subs}, hex ${s.hex}
+        IP ${s.ip}/${s.mask} (${s.priv}), red ${s.red}, bc ${s.bc},<br>
+        subredes ${s.subs}, hosts ${s.hosts}, host min ${s.min}, host max ${s.max}, hex ${s.hex}
       </div>`;
     });
     showModal(html);
