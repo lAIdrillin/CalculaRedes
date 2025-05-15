@@ -5,6 +5,22 @@ input.addEventListener('input', () => {
     const ipCompleta = input.value.trim();
     const octetos = ipCompleta.split('.').map(octeto => parseInt(octeto));
 
+    // Autocompletar mascaraRed dinámicamente
+    const mascaraRed = document.getElementById('subnetCompleta');
+    if (octetos.length === 4 && octetos.every(o => !isNaN(o) && o >= 0 && o <= 255)) {
+        if (octetos[0] >= 1 && octetos[0] <= 126) {
+            mascaraRed.value = 8;
+        } else if (octetos[0] >= 128 && octetos[0] <= 191) {
+            mascaraRed.value = 16;
+        } else if (octetos[0] >= 192 && octetos[0] <= 223) {
+            mascaraRed.value = 24;
+        } else if (octetos[0] >= 224 && octetos[0] <= 239) {
+            mascaraRed.value = 'N/A';
+        } else if (octetos[0] >= 240 && octetos[0] <= 255) {
+            mascaraRed.value = 'N/A';
+        }
+    }
+
     if (
         octetos.length !== 4 || 
         octetos.some(octeto => isNaN(octeto) || octeto < 0 || octeto > 255)
@@ -77,6 +93,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         mascara = 'no tiene';
     }
 
+
     // Determinar si la dirección es privada o pública
     if (
         (octeto1 === 10) ||
@@ -131,6 +148,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         broadcast = intToIP(broadcastInt);
 
         hosts = bitsMascara < 31 ? (2 ** (32 - bitsMascara) - 2) : (bitsMascara === 31 ? 2 : 1);
+        
 
         // Mostrar ventana emergente con los resultados
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, red, broadcast, hosts, bitsMascara);
