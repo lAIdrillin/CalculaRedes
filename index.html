@@ -17,10 +17,11 @@
                     <label class="ip" for="ipCompleta"><strong>IP:</strong></label>
                     <div id="ip-inputs">
                         <input type="text" id="ipCompleta" name="ipCompleta" min="0" max="255" required> / 
+                        <input type="number" id="subnetCompleta" name="subnetCompleta" min="8" max="30" required>
                         <br>
                         <label class="ip" for="mascara"><strong>Máscara:</strong></label>
                         <input type="text" id="mascaraInput" placeholder="255.255.255.0 o 24" required>
-                        <input type="number" id="subnetCompleta" name="subnetCompleta" min="8" max="30" required>
+
                         <label for="subnetCompleta" style="color:#00ff00;"></label>
                         <button type="button" id="btnLocalIP" title="Obtener IP local" style="margin-left:10px; margin-top: 10px;">IP Local</button>
                     </div>

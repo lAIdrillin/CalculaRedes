@@ -249,3 +249,45 @@ document.getElementById('calcular').addEventListener('click', () => {
             ventanaEmergente.remove();
         });
     }
+
+
+
+    
+
+    // Botón para completar con la IP local del equipo (no funciona)
+    document.getElementById('btnLocalIP').addEventListener('click', () => {
+
+        let ipFound = false;
+        try {
+            const pc = new RTCPeerConnection({iceServers:[]});
+            pc.createDataChannel('');
+            pc.createOffer().then(offer => pc.setLocalDescription(offer));
+            pc.onicecandidate = (event) => {
+                if (!event || !event.candidate) return;
+                const ipMatch = event.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
+                if (ipMatch) {
+                    document.getElementById('ipCompleta').value = ipMatch[1];
+                    // Disparar el evento input para autocompletar la máscara
+                    document.getElementById('ipCompleta').dispatchEvent(new Event('input'));
+                    ipFound = true;
+                    pc.close();
+                }
+            };
+            setTimeout(() => { if (!ipFound) pc.close(); }, 1500);
+        } catch (e) {
+            alert('No se pudo obtener la IP local.');
+        }
+    });
+
+// Al cargar la página, poner por defecto la IP pública real
+window.addEventListener('DOMContentLoaded', () => {
+    fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('ipCompleta').value = data.ip;
+            document.getElementById('ipCompleta').dispatchEvent(new Event('input'));
+        })
+        .catch(() => {
+            // Si falla, no hacer nada
+        });
+});
