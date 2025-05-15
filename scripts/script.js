@@ -1,100 +1,100 @@
 (function () {
-  const ipInput = document.getElementById('ipCompleta');
-  const maskInput = document.getElementById('subnetCompleta');
-  const btnLocal = document.getElementById('btnLocalIP');
-  const btnCalc = document.getElementById('calcular');
-  const btnHist = document.getElementById('verHistorial');
-  const histDiv = document.getElementById('resumen-sesiones');
+  const entradaIp = document.getElementById('ipCompleta');
+  const entradaMascara = document.getElementById('subnetCompleta');
+  const botonLocal = document.getElementById('btnLocalIP');
+  const botonCalcular = document.getElementById('calcular');
+  const botonHistorial = document.getElementById('verHistorial');
+  const divHistorial = document.getElementById('resumen-sesiones');
 
-  // 1) Auto-cargar IP pública
+  //Auto-cargar IP pública
   fetch('https://api.ipify.org?format=json')
-    .then((r) => r.json())
-    .then((d) => {
-      ipInput.value = d.ip;
-      validateIp();
+    .then((respuesta) => respuesta.json())
+    .then((datos) => {
+      entradaIp.value = datos.ip;
+      validarIp();
     })
     .catch(() => {});
 
-   //2) Validación visual IP y máscara
-  function validateIp() {
-    const val = ipInput.value.trim();
-    const parts = val.split('.');
-    let isValid = parts.length === 4;
+  //Validación visual IP y máscara
+  function validarIp() {
+    const valor = entradaIp.value.trim();
+    const partes = valor.split('.');
+    let esValido = partes.length === 4;
 
-    for (let i = 0; i < parts.length; i++) {
-      const num = parseInt(parts[i], 10);
-      if (isNaN(num) || num < 0 || num > 255) {
-        isValid = false;
+    for (let i = 0; i < partes.length; i++) {
+      const numero = parseInt(partes[i], 10);
+      if (isNaN(numero) || numero < 0 || numero > 255) {
+        esValido = false;
         break;
       }
     }
 
-    setStyle(ipInput, isValid);
+    aplicarEstilo(entradaIp, esValido);
   }
 
-  function validateMask() {
-    const value = maskInput.value.trim();
-    const number = parseInt(value, 10);
-    if (!isNaN(number) && number >= 8 && number <= 30) {
-      maskInput.style.borderColor = '#00ff00';
-      maskInput.style.boxShadow = '0 0 5px #00ff00';
-      maskInput.style.color = '#00ff00';
+  function validarMascara() {
+    const valor = entradaMascara.value.trim();
+    const numero = parseInt(valor, 10);
+    if (!isNaN(numero) && numero >= 8 && numero <= 30) {
+      entradaMascara.style.borderColor = '#00ff00';
+      entradaMascara.style.boxShadow = '0 0 5px #00ff00';
+      entradaMascara.style.color = '#00ff00';
     } else {
-      maskInput.style.borderColor = 'red';
-      maskInput.style.boxShadow = '0 0 5px red';
-      maskInput.style.color = 'red';
+      entradaMascara.style.borderColor = 'red';
+      entradaMascara.style.boxShadow = '0 0 5px red';
+      entradaMascara.style.color = 'red';
     }
   }
 
-  function setStyle(el, valid) {
-    if (valid) {
-      el.style.borderColor = '#00ff00';
-      el.style.boxShadow = '0 0 5px #00ff00';
-      el.style.color = '#00ff00';
+  function aplicarEstilo(elemento, valido) {
+    if (valido) {
+      elemento.style.borderColor = '#00ff00';
+      elemento.style.boxShadow = '0 0 5px #00ff00';
+      elemento.style.color = '#00ff00';
     } else {
-      el.style.borderColor = 'red';
-      el.style.boxShadow = '0 0 5px red';
-      el.style.color = 'red';
+      elemento.style.borderColor = 'red';
+      elemento.style.boxShadow = '0 0 5px red';
+      elemento.style.color = 'red';
     }
   }
 
-  ipInput.addEventListener('input', validateIp);
-  maskInput.addEventListener('input', validateMask);
+  entradaIp.addEventListener('input', validarIp);
+  entradaMascara.addEventListener('input', validarMascara);
 
-  // 3) Rellenar máscara por defecto
-  ipInput.addEventListener('blur', function () {
-    var ipParts = ipInput.value.split('.');
-    var firstOctet = parseInt(ipParts[0], 10);
+  //Rellenar máscara por defecto
+  entradaIp.addEventListener('blur', function () {
+    var partesIp = entradaIp.value.split('.');
+    var primerOcteto = parseInt(partesIp[0], 10);
 
-    if (firstOctet >= 1 && firstOctet <= 126) {
-      maskInput.value = 8;
-    } else if (firstOctet >= 128 && firstOctet <= 191) {
-      maskInput.value = 16;
-    } else if (firstOctet >= 192 && firstOctet <= 223) {
-      maskInput.value = 24;
+    if (primerOcteto >= 1 && primerOcteto <= 126) {
+      entradaMascara.value = 8;
+    } else if (primerOcteto >= 128 && primerOcteto <= 191) {
+      entradaMascara.value = 16;
+    } else if (primerOcteto >= 192 && primerOcteto <= 223) {
+      entradaMascara.value = 24;
     }
 
-    validateMask();
+    validarMascara();
   });
 
-  // 4) Obtener IP Local 
-  btnLocal.addEventListener('click', () => {
-    const ipInputValue = prompt("Introduce tu IP local manualmente:");
-    if (ipInputValue) {
-      ipInput.value = ipInputValue;
-      validateIp();
+  //Obtener IP Local
+  botonLocal.addEventListener('click', () => {
+    const valorIpLocal = prompt("Introduce tu IP local manualmente:");
+    if (valorIpLocal) {
+      entradaIp.value = valorIpLocal;
+      validarIp();
     }
   });
 
-  // 5) Coloreado binario bit a bit
-  function colorBin(binStr, netBits, subBits) {
-    const bits = binStr.split('.').join('');
+  //Coloreado binario bit a bit
+  function colorearBinario(binario, bitsRed, bitsSubred) {
+    const bits = binario.split('.').join('');
     let html = '';
     for (let i = 0; i < bits.length; i++) {
       let color;
-      if (i < netBits) {
+      if (i < bitsRed) {
         color = 'red';
-      } else if (i < subBits) {
+      } else if (i < bitsSubred) {
         color = 'orange';
       } else {
         color = 'limegreen';
@@ -107,10 +107,10 @@
     return html;
   }
 
-  // 6) Comprueba si IP es privada
-  function isPrivateIp(octs) {
-    var o1 = octs[0];
-    var o2 = octs[1];
+  //Comprueba si IP es privada
+  function esPrivada(octetos) {
+    var o1 = octetos[0];
+    var o2 = octetos[1];
     if (o1 === 10) {
       return true;
     }
@@ -123,96 +123,105 @@
     return false;
   }
 
-  // 7) Modal
-  function showModal(html) {
-    var existingDiv = document.getElementById('resultados');
-    if (existingDiv) {
-      existingDiv.parentNode.removeChild(existingDiv);
+  //Modal
+  function mostrarModal(html) {
+    var divExistente = document.getElementById('resultados');
+    if (divExistente) {
+      divExistente.parentNode.removeChild(divExistente);
     }
     var div = document.createElement('div');
     div.id = 'resultados';
     div.className = 'ventana-emergente';
     div.innerHTML = html + '<button id="cerrarVentana">Cerrar</button>';
     document.body.appendChild(div);
-    var closeButton = document.getElementById('cerrarVentana');
-    closeButton.onclick = function () {
+    var botonCerrar = document.getElementById('cerrarVentana');
+    botonCerrar.onclick = function () {
       div.parentNode.removeChild(div);
     };
   }
 
-  // 8) Calcular y mostrar resumen
-  btnCalc.addEventListener('click', () => {
-    validateIp();
-    validateMask();
-    const valIp = ipInput.value.trim();
-    const valM = parseInt(maskInput.value, 10);
-    const regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-    if (!regex.test(valIp) || valM < 8 || valM > 30) {
-      return showModal('<p class="error">IP o máscara inválidas.</p>');
+  //Calcular y mostrar resumen
+  botonCalcular.addEventListener('click', () => {
+    validarIp();
+    validarMascara();
+    const valorIp = entradaIp.value.trim();
+    const valorMascara = parseInt(entradaMascara.value, 10);
+    if (
+      valorIp.split('.').length !== 4 ||
+      valorIp.split('.').some((octeto) => {
+      const numero = parseInt(octeto, 10);
+      return isNaN(numero) || numero < 0 || numero > 255;
+      }) ||
+      isNaN(valorMascara) ||
+      valorMascara < 8 ||
+      valorMascara > 30
+    ) {
+      return mostrarModal('<p class="error">IP o máscara inválidas.</p>');
     }
-    const octs = valIp.split('.').map((n) => parseInt(n, 10));
-    if (octs.some((o) => o < 0 || o > 255)) {
-      return showModal('<p class="error">IP inválida.</p>');
+    const octetos = valorIp.split('.').map((n) => parseInt(n, 10));
+    if (octetos.some((o) => o < 0 || o > 255)) {
+      return mostrarModal('<p class="error">IP inválida.</p>');
     }
-    const [a, b2, b3, b4] = octs;
-    const b = valM;
-    const defBits = a <= 126 ? 8 : a <= 191 ? 16 : 24;
-    const maskInt = (0xffffffff << (32 - b)) >>> 0;
-    const maskOct = [
-      (maskInt >>> 24) & 0xff,
-      (maskInt >>> 16) & 0xff,
-      (maskInt >>> 8) & 0xff,
-      maskInt & 0xff,
-    ];
-    const maskDec = maskOct.join('.');
-    const wild = maskOct.map((x) => 255 - x).join('.');
+    const [a, b2, b3, b4] = octetos;
+    const bits = valorMascara;
+    const bitsDefecto = a <= 126 ? 8 : a <= 191 ? 16 : 24;
+    const mascaraInt = Math.pow(2, 32) - Math.pow(2, 32 - bits);
+    const mascaraOctetos = [];
+    //Sacamos los octetos de la mascara
+    mascaraOctetos.push((mascaraInt >> 24) & 255);
+    mascaraOctetos.push((mascaraInt >> 16) & 255);
+    mascaraOctetos.push((mascaraInt >> 8) & 255);
+    mascaraOctetos.push(mascaraInt & 255);
+  
+    const mascaraDecimal = mascaraOctetos.join('.');
+    const comodin = mascaraOctetos.map((x) => 255 - x).join('.');
     const ipInt = ((a << 24) | (b2 << 16) | (b3 << 8) | b4) >>> 0;
-    const netInt = ipInt & maskInt;
-    const bcInt = netInt | (~maskInt >>> 0);
-    const totalHosts = b < 31 ? 2 ** (32 - b) - 2 : b === 31 ? 2 : 1;
-    const minHost = b < 31 ? netInt + 1 : netInt;
-    const maxHost = b < 31 ? bcInt - 1 : b === 31 ? netInt + 1 : netInt;
-    const intToIp = (i) =>
+    const redInt = ipInt & mascaraInt;
+    const bcInt = redInt | (~mascaraInt >>> 0);
+    const totalHosts = bits < 31 ? 2 ** (32 - bits) - 2 : bits === 31 ? 2 : 1;
+    const hostMinimo = bits < 31 ? redInt + 1 : redInt;
+    const hostMaximo = bits < 31 ? bcInt - 1 : bits === 31 ? redInt + 1 : redInt;
+    const intAip = (i) =>
       [(i >>> 24) & 0xff, (i >>> 16) & 0xff, (i >>> 8) & 0xff, i & 0xff].join(
         '.'
       );
-    const subnets = b > defBits ? 2 ** (b - defBits) : 1;
-    const hexIp = octs.map((x) => x.toString(16).padStart(2, '0')).join('.');
-    const ipBin = octs.map((x) => x.toString(2).padStart(8, '0')).join('.');
-    const maskBin = maskOct
+    const subredes = bits > bitsDefecto ? 2 ** (bits - bitsDefecto) : 1;
+    const ipHexadecimal = octetos.map((x) => x.toString(16).padStart(2, '0')).join('.');
+    const ipBinaria = octetos.map((x) => x.toString(2).padStart(8, '0')).join('.');
+    const mascaraBinaria = mascaraOctetos
       .map((x) => x.toString(2).padStart(8, '0'))
       .join('.');
-    const wildBin = wild
+    const comodinBinario = comodin
       .split('.')
       .map((x) => parseInt(x).toString(2).padStart(8, '0'))
       .join('.');
-    const netBin = intToIp(netInt)
+    const redBinaria = intAip(redInt)
       .split('.')
       .map((x) => parseInt(x).toString(2).padStart(8, '0'))
       .join('.');
-    const bcBin = intToIp(bcInt)
+    const bcBinaria = intAip(bcInt)
       .split('.')
       .map((x) => parseInt(x).toString(2).padStart(8, '0'))
       .join('.');
-    const isPriv = isPrivateIp(octs) ? 'Privada' : 'Pública';
+    const esPriv = esPrivada(octetos) ? 'Privada' : 'Pública';
 
     const html = `
       <h2>Detalles de la IP</h2>
-      <p><strong>IP:</strong> ${valIp} (${isPriv})</p>
-      <p><strong>BIN:</strong> ${colorBin(ipBin, defBits, b)}</p>
-      <p><strong>Mask /${b}:</strong> ${maskDec} (${colorBin(maskBin, defBits, b)})</p>
-      <p><strong>Wildcard:</strong> ${wild} (${colorBin(wildBin, defBits, b)})</p>
-      <p><strong>Red:</strong> ${intToIp(netInt)} (${colorBin(netBin, defBits, b)})</p>
-      <p><strong>Broadcast:</strong> ${intToIp(bcInt)} (${colorBin(bcBin, defBits, b)})</p>
+      <p><strong>IP:</strong> ${valorIp} (${esPriv})</p>
+      <p><strong>BIN:</strong> ${colorearBinario(ipBinaria, bitsDefecto, bits)}</p>
+      <p><strong>Máscara /${bits}:</strong> ${mascaraDecimal} (${colorearBinario(mascaraBinaria, bitsDefecto, bits)})</p>
+      <p><strong>Comodín:</strong> ${comodin} (${colorearBinario(comodinBinario, bitsDefecto, bits)})</p>
+      <p><strong>Red:</strong> ${intAip(redInt)} (${colorearBinario(redBinaria, bitsDefecto, bits)})</p>
+      <p><strong>Broadcast:</strong> ${intAip(bcInt)} (${colorearBinario(bcBinaria, bitsDefecto, bits)})</p>
       <p><strong>Clase:</strong> ${
-        defBits === 8 ? 'A' : defBits === 16 ? 'B' : 'C'
+        bitsDefecto === 8 ? 'A' : bitsDefecto === 16 ? 'B' : 'C'
       }</p>
-      <p><strong>Número de subredes:</strong> ${subnets}</p>
+      <p><strong>Número de subredes:</strong> ${subredes}</p>
       <p><strong>Hosts totales:</strong> ${totalHosts}</p>
-      <p><strong>Host mínimo:</strong> ${intToIp(minHost)}</p>
-      <p><strong>Host máximo:</strong> ${intToIp(maxHost)}</p>
-      <p><strong>IP hexadecimal:</strong> ${hexIp}</p>
+      <p><strong>Host mínimo:</strong> ${intAip(hostMinimo)}</p>
+      <p><strong>Host máximo:</strong> ${intAip(hostMaximo)}</p>
+      <p><strong>IP hexadecimal:</strong> ${ipHexadecimal}</p>
     `;
-    showModal(html);
+    mostrarModal(html);
   });
 })();
