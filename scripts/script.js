@@ -37,6 +37,7 @@ input.addEventListener('input', () => {
 
 document.getElementById('calcular').addEventListener('click', () => {
     const ipCompleta = document.getElementById('ipCompleta').value.trim();
+    const mascaraInput = document.getElementById('mascaraInput').value.trim();
     const octetos = ipCompleta.split('.').map(octeto => parseInt(octeto));
     const resultadoDiv = document.getElementById('resultado');
 
@@ -57,7 +58,38 @@ document.getElementById('calcular').addEventListener('click', () => {
     let red = '';
     let broadcast = '';
     let hosts = '-';
-    let bitsMascara = 24; // Ajusta según sea necesario
+    let bitsMascara = 24; 
+    let mascaraOctetos = [];
+
+    if(/^\d{1,2}$/.test(mascaraInput)){
+        bitsMascara = parseInt(mascaraInput);
+        if (bitsMascara < 0 || bitsMascara > 32) {
+            resultadoDiv.innerHTML = '<p class="error">Por favor, ingresa una máscara válida entre 0 y 32.</p>';
+            return;
+        }
+        const mask = (0xFFFFFFFF << (32 - bitsMascara)) >>> 0;
+        mascaraOctetos = [
+            (mask >>> 24) & 0xFF,
+            (mask >>> 16) & 0xFF,
+            (mask >>> 8) & 0xFF,
+            mask & 0xFF
+        ];
+        mascara = mascaraOctetos.join('.');
+    } else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(mascaraInput)) {
+        mascaraOctetos = mascaraInput.split('.').map(Number);
+        if(
+            mascaraOctetos.lenght !== 4 ||
+            mascaraOctetos.some(o => isNaN(o) || o < 0 || o > 255)
+        ){
+            resultadoDiv.innerHTML = '<p class="error>La mascara debe tener 4 octetos entre 0 y 255.</p>';
+            return;
+        }
+        bitsMascara = maskInt.toString(2).replace(/0/g, '').length;
+        mascara = mascaraInput;
+    } else{
+        resultadoDiv.innerHTML = '<p class="error">Introduce la mascara en formato decimal (255.255.255.0) o de bits (24).</p>';
+        return;
+    }
 
     // Determinar la clase de red
     if (octeto1 >= 1 && octeto1 <= 126) {
