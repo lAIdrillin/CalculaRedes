@@ -71,4 +71,4 @@ En la sesion de hoy nos hemos encargado de implementar varias cosas: un input pa
 
 ### Ideas de Mejora Futura
 - Mayor organazicaaion
-- Ir mejorando con el paso de sesiones
+- Ir mejorando con el paso de sesiones.
