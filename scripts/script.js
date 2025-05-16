@@ -1,8 +1,21 @@
 const inputs = document.querySelectorAll('#octeto1, #octeto2, #octeto3, #octeto4');
 const input = document.getElementById('ipCompleta');
 const cidr = document.getElementById('cidr');
+const mascaraPersonalizada = document.getElementById('mascaraPersonalizada');  // ahora es el elemento
 
 
+function generarMascaraDesdeCIDR(bits) {
+    const unos = '1'.repeat(bits);
+    const ceros = '0'.repeat(32 - bits);
+    const binarioMask = unos + ceros;
+
+    return [
+        binarioMask.slice(0, 8),
+        binarioMask.slice(8, 16),
+        binarioMask.slice(16, 24),
+        binarioMask.slice(24, 32)
+    ].map(octBin => parseInt(octBin, 2)).join('.');
+}
 
 input.addEventListener('input', () => {
     const ipCompleta = input.value.trim();
@@ -32,15 +45,18 @@ input.addEventListener('input', () => {
 
     if (primerOcteto >= 1 && primerOcteto <= 126) {
         cidrValue = 8;
-    }else if (primerOcteto >= 128 && primerOcteto <= 191) {
+    } else if (primerOcteto >= 128 && primerOcteto <= 191) {
         cidrValue = 16;
     } else if (primerOcteto >= 192 && primerOcteto <= 223) {
         cidrValue = 24;
-    } 
+    }
 
     cidr.value = cidrValue;
+    // y auto-completar máscara por defecto
+    if (cidrValue) {
+        mascaraPersonalizada.value = generarMascaraDesdeCIDR(cidrValue);
+    }
 });
-
 
 cidr.addEventListener('input', () => {
     const cidrok = cidr.value.trim();
@@ -49,10 +65,13 @@ cidr.addEventListener('input', () => {
         cidr.style.borderColor = 'red';
         cidr.style.boxShadow = '0 0 5px red';
         cidr.style.color = 'red';
-    }else{
+    } else {
         cidr.style.borderColor = '#00ff00';
         cidr.style.boxShadow = '0 0 5px #00ff00';
         cidr.style.color = '#00ff00';
+
+        const bits = parseInt(cidrok, 10);
+        mascaraPersonalizada.value = generarMascaraDesdeCIDR(bits);
     }
 });
 
@@ -133,26 +152,10 @@ document.getElementById('calcular').addEventListener('click', () => {
             }
         }
     }
-    const mascaraPersonalizada = document.getElementById("mascaraPersonalizada").value;
+    
 
-    if(mascaraPersonalizada != ""){
-        mascara = mascaraPersonalizada;
-        if (octeto1 >= 1 && octeto1 <= 126) {
-            clase = 'Clase A';
-        } else if (octeto1 >= 128 && octeto1 <= 191) {
-            clase = 'Clase B';
-        } else if (octeto1 >= 192 && octeto1 <= 223) {
-            clase = 'Clase C';
-        } else if (octeto1 >= 224 && octeto1 <= 239) {
-            clase = 'Clase D (Multicast)';
-        } else if (octeto1 >= 240 && octeto1 <= 255) {
-            clase = 'Clase E (Experimental)';
-        } else {
-            clase = 'Clase desconocida';
-        }
-
-    }else{
     //CALCULOS 
+        
         //calculos clase y mascara
         if (octeto1 >= 1 && octeto1 <= 126) {
             clase = 'Clase A';
@@ -162,7 +165,7 @@ document.getElementById('calcular').addEventListener('click', () => {
             mascara = '255.255.0.0';
         } else if (octeto1 >= 192 && octeto1 <= 223) {
             clase = 'Clase C';
-            mascara = '255.255.252.0';
+            mascara = '255.255.255.0';
         } else if (octeto1 >= 224 && octeto1 <= 239) {
             clase = 'Clase D (Multicast)';
         } else if (octeto1 >= 240 && octeto1 <= 255) {
@@ -181,7 +184,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         } else {
             direccion = 'Pública';
         }
-    }
+    
         //Calcular numero de hosts
         
         let bits_host = 32 - cidrval;
@@ -333,25 +336,23 @@ document.getElementById('calcular').addEventListener('click', () => {
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
              direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
         }
-
         
 
-        
     //FUNCIONES PARA CONVERTIR A BINARIO, DECIMAL
     function binario(n1, n2, n3, n4) {
         let bin = n1.toString(2); 
         let bin2 = n2.toString(2);
         let bin3 = n3.toString(2);
         let bin4 = n4.toString(2);
-        const resultado = `${bin.padStart(8, '0')}.${bin2.padStart(8, '0')}.${bin3.padStart(8, '0')}.${bin4.padStart(8, '0')}`; //agregar ceros a la izquierda hasta llegar a 8 car
+        const resultado = `${bin.padStart(8, '0')}.${bin2.padStart(8, '0')}.${bin3.padStart(8, '0')}.${bin4.padStart(8, '0')}`;
         return resultado;
-        }
+    }
     function decimal(n1, n2, n3, n4){
         let dec = parseInt(n1, 2);
         let dec2 = parseInt(n2, 2);
         let dec3 = parseInt(n3, 2);
         let dec4 = parseInt(n4, 2);
-        const resultado = `${dec}.${dec2}.${dec3}.${dec4}`
+        const resultado = `${dec}.${dec2}.${dec3}.${dec4}`;
         return resultado;
     }   
     function Hexadecimal(n1, n2, n3, n4) {
@@ -362,11 +363,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         return `${h1}.${h2}.${h3}.${h4}`.toUpperCase(); 
 }
 
-
 });
-
-
-
 
 //función para mostrar la ventana emergente
 function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta, direccionRedDec, 
