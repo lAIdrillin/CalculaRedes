@@ -17,11 +17,13 @@
                     <div id = form>
                         <label class="ip" for="ip" style="font-size: 30px;"><strong>IP:</strong></label>
                         <div id="ip-inputs">
-                            <input type="text" id="ipCompleta" name="ip" min="0" max="255" style="margin-right: 20px;" required>
+                            <input type="text" id="ipCompleta" name="ip" min="0" max="255" style="margin-right: 20px;" required pattern="^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$"
+                            title="Introduce una IP válida (ej: 192.168.1.1)">
                            /
-                            <input type="text" id="cidr" min="8" max="30" style="margin-left: 20px; width: 10%;"><span style="font-size: medium; margin-left: 20px;">(CIDR)</span>
+                            <input type="text" id="cidr" min="8" max="30" style="margin-left: 20px; width: 10%;"pattern="^(8|9|1[0-9]|2[0-9]|30)$"title="Introduce un valor CIDR entre 8 y 30"><span style="font-size: medium; margin-left: 20px;">(CIDR)</span>
                             <br>
-                            <input type="text" id="mascaraPersonalizada" min="8" max="30" style="margin-left: 20px; width: 30%;"><span style="font-size: medium; margin-left: 20px;">mascara</span>
+                            <input type="text" id="mascaraPersonalizada" min="8" max="30" style="margin-left: 20px; width: 30%;" pattern="^(255|254|252|248|240|224|192|128|0)\.(255|254|252|248|240|224|192|128|0)\.(255|254|252|248|240|224|192|128|0)\.(255|254|252|248|240|224|192|128|0)$"
+                            title="Introduce una máscara válida (ej: 255.255.255.0)"><span style="font-size: medium; margin-left: 20px;">mascara</span>
                         </div>
                     </div>
                     <br>
