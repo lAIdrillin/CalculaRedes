@@ -1,228 +1,455 @@
-(function () {
-  const entradaIp = document.getElementById('ipCompleta');
-  const entradaMascara = document.getElementById('subnetCompleta');
-  const botonLocal = document.getElementById('btnLocalIP');
-  const botonCalcular = document.getElementById('calcular');
-  const botonHistorial = document.getElementById('verHistorial');
-  const divHistorial = document.getElementById('resumen-sesiones');
+const inputs = document.querySelectorAll('#octeto1, #octeto2, #octeto3, #octeto4');
+const input = document.getElementById('ipCompleta');
+const cidr = document.getElementById('cidr');
+const mascaraPersonalizada = document.getElementById('mascaraPersonalizada');  // ahora es el elemento
 
-  //Auto-cargar IP pública
-  fetch('https://api.ipify.org?format=json')
-    .then((respuesta) => respuesta.json())
-    .then((datos) => {
-      entradaIp.value = datos.ip;
-      validarIp();
-    })
-    .catch(() => {});
+// función que, dado un /CIDR, genera la máscara decimal correspondiente
+function generarMascaraDesdeCIDR(bits) {
+    const unos = '1'.repeat(bits);
+    const ceros = '0'.repeat(32 - bits);
+    const binarioMask = unos + ceros;
+    // partir en grupos de 8, convertir a decimal y unir con puntos
+    return [
+        binarioMask.slice(0, 8),
+        binarioMask.slice(8, 16),
+        binarioMask.slice(16, 24),
+        binarioMask.slice(24, 32)
+    ].map(octBin => parseInt(octBin, 2)).join('.');
+}
+function mascaraValida(mascara) {
+    let encontrado_cero = false;
 
-  //Validación visual IP y máscara
-  function validarIp() {
-    const valor = entradaIp.value.trim();
-    const partes = valor.split('.');
-    let esValido = partes.length === 4;
-
-    for (let i = 0; i < partes.length; i++) {
-      const numero = parseInt(partes[i], 10);
-      if (isNaN(numero) || numero < 0 || numero > 255) {
-        esValido = false;
-        break;
-      }
+    for (let i = 0; i < mascara.length; i++) {
+        if (mascara[i] === '1') {
+            if (encontrado_cero) {
+                return false;
+            }
+        } else if (mascara[i] === '0') {
+            encontrado_cero = true;
+        } else {
+            
+            return false;
+        }
     }
 
-    aplicarEstilo(entradaIp, esValido);
-  }
+    return true; 
+}
 
-  function validarMascara() {
-    const valor = entradaMascara.value.trim();
-    const numero = parseInt(valor, 10);
-    if (!isNaN(numero) && numero >= 8 && numero <= 30) {
-      entradaMascara.style.borderColor = '#00ff00';
-      entradaMascara.style.boxShadow = '0 0 5px #00ff00';
-      entradaMascara.style.color = '#00ff00';
-    } else {
-      entradaMascara.style.borderColor = 'red';
-      entradaMascara.style.boxShadow = '0 0 5px red';
-      entradaMascara.style.color = 'red';
+
+input.addEventListener('input', () => {
+    const ipCompleta = input.value.trim();
+    const octetos = ipCompleta.split('.').map(octeto => parseInt(octeto));
+    
+    // Validar IP: Debe tener 4 octetos y cada uno entre 0 y 255
+    const esValida = (
+        octetos.length === 4 &&
+        octetos.every(octeto => !isNaN(octeto) && octeto >= 0 && octeto <= 255)
+    );
+    //si la ip no es válida, ponemos estilos rojos
+    if (!esValida) {
+        input.style.borderColor = 'red';
+        input.style.boxShadow = '0 0 5px red';
+        input.style.color = 'red';
+        cidr.value = '';  
+        return;           
     }
-  }
 
-  function aplicarEstilo(elemento, valido) {
-    if (valido) {
-      elemento.style.borderColor = '#00ff00';
-      elemento.style.boxShadow = '0 0 5px #00ff00';
-      elemento.style.color = '#00ff00';
-    } else {
-      elemento.style.borderColor = 'red';
-      elemento.style.boxShadow = '0 0 5px red';
-      elemento.style.color = 'red';
-    }
-  }
+    // Si la IP es válida, ponemos estilos verdes
+    input.style.borderColor = '#00ff00';
+    input.style.boxShadow = '0 0 5px #00ff00';
+    input.style.color = '#00ff00';
 
-  entradaIp.addEventListener('input', validarIp);
-  entradaMascara.addEventListener('input', validarMascara);
-
-  //Rellenar máscara por defecto
-  entradaIp.addEventListener('blur', function () {
-    var partesIp = entradaIp.value.split('.');
-    var primerOcteto = parseInt(partesIp[0], 10);
+    const primerOcteto = octetos[0];
+    let cidrValue = '';
 
     if (primerOcteto >= 1 && primerOcteto <= 126) {
-      entradaMascara.value = 8;
+        cidrValue = 8;
     } else if (primerOcteto >= 128 && primerOcteto <= 191) {
-      entradaMascara.value = 16;
+        cidrValue = 16;
     } else if (primerOcteto >= 192 && primerOcteto <= 223) {
-      entradaMascara.value = 24;
+        cidrValue = 24;
     }
 
-    validarMascara();
-  });
+    cidr.value = cidrValue;
+    // y auto-completar máscara por defecto
+    if (cidrValue) {
+        mascaraPersonalizada.value = generarMascaraDesdeCIDR(cidrValue);
+    }
+});
 
-  //Obtener IP Local
-  botonLocal.addEventListener('click', () => {
-    const valorIpLocal = prompt("Introduce tu IP local manualmente:");
-    if (valorIpLocal) {
-      entradaIp.value = valorIpLocal;
-      validarIp();
-    }
-  });
+cidr.addEventListener('input', () => {
+    const cidrok = cidr.value.trim();
 
-  //Coloreado binario bit a bit
-  function colorearBinario(binario, bitsRed, bitsSubred) {
-    const bits = binario.split('.').join('');
-    let html = '';
-    for (let i = 0; i < bits.length; i++) {
-      let color;
-      if (i < bitsRed) {
-        color = 'red';
-      } else if (i < bitsSubred) {
-        color = 'orange';
-      } else {
-        color = 'limegreen';
-      }
-      html += '<span style="color:' + color + ';">' + bits[i] + '</span>';
-      if ((i + 1) % 8 === 0 && i < bits.length - 1) {
-        html += '.';
-      }
+    if (isNaN(cidrok) || cidrok < 8 || cidrok > 30) {
+        cidr.style.borderColor = 'red';
+        cidr.style.boxShadow = '0 0 5px red';
+        cidr.style.color = 'red';
+    } else {
+        cidr.style.borderColor = '#00ff00';
+        cidr.style.boxShadow = '0 0 5px #00ff00';
+        cidr.style.color = '#00ff00';
+        // al ser válido, calcular y poner la máscara decimal
+        const bits = parseInt(cidrok, 10);
+        mascaraPersonalizada.value = generarMascaraDesdeCIDR(bits);
     }
-    return html;
-  }
+});
 
-  //Comprueba si IP es privada
-  function esPrivada(octetos) {
-    var o1 = octetos[0];
-    var o2 = octetos[1];
-    if (o1 === 10) {
-      return true;
-    }
-    if (o1 === 172 && o2 >= 16 && o2 <= 31) {
-      return true;
-    }
-    if (o1 === 192 && o2 === 168) {
-      return true;
-    }
-    return false;
-  }
+document.getElementById('calcular').addEventListener('click', () => {
+    const cidrInput = document.getElementById('cidr').value.trim();
+    const cidrval = parseInt(cidrInput, 10);
+    const ipCompleta = document.getElementById('ipCompleta').value.trim();
+    const octetos = ipCompleta.split('.').map(octeto => parseInt(octeto));
+    const resultadoDiv = document.getElementById('resultado');
+    const mp = mascaraPersonalizada.value.trim();
 
-  //Modal
-  function mostrarModal(html) {
-    var divExistente = document.getElementById('resultados');
-    if (divExistente) {
-      divExistente.parentNode.removeChild(divExistente);
+    // --- 1) Validar primero la máscara personalizada ---
+    if (mp) {
+        // 1.1) Partimos el string en octetos y comprobamos rango 0–255
+        const octs = mp.split('.').map(o => parseInt(o, 10));
+        if (octs.length !== 4 || octs.some(o => isNaN(o) || o < 0 || o > 255)) {
+            resultadoDiv.innerHTML = '<p class="error">Máscara inválida.</p>';
+            return;
+        }
+        // 1.2) Convertimos a string binaria de 32 bits sin puntos
+        const binMask = octs
+            .map(o => o.toString(2).padStart(8, '0'))
+            .join('');
+        // 1.3) Usamos tu función mascaraValida para comprobar que son 1s luego 0s
+        if (!mascaraValida(binMask)) {
+            resultadoDiv.innerHTML = '<p class="error">Máscara inválida.</p>';
+            return;
+        }
     }
-    var div = document.createElement('div');
-    div.id = 'resultados';
-    div.className = 'ventana-emergente';
-    div.innerHTML = html + '<button id="cerrarVentana">Cerrar</button>';
-    document.body.appendChild(div);
-    var botonCerrar = document.getElementById('cerrarVentana');
-    botonCerrar.onclick = function () {
-      div.parentNode.removeChild(div);
-    };
-  }
 
-  //Calcular y mostrar resumen
-  botonCalcular.addEventListener('click', () => {
-    validarIp();
-    validarMascara();
-    const valorIp = entradaIp.value.trim();
-    const valorMascara = parseInt(entradaMascara.value, 10);
+    
     if (
-      valorIp.split('.').length !== 4 ||
-      valorIp.split('.').some((octeto) => {
-      const numero = parseInt(octeto, 10);
-      return isNaN(numero) || numero < 0 || numero > 255;
-      }) ||
-      isNaN(valorMascara) ||
-      valorMascara < 8 ||
-      valorMascara > 30
+        octetos.length !== 4 || 
+        octetos.some(octeto => isNaN(octeto) || octeto < 0 || octeto > 255) ||
+        isNaN(parseInt(cidr.value)) || cidr.value.trim() === '' || parseInt(cidr.value) < 8 || parseInt(cidr.value) > 30
     ) {
-      return mostrarModal('<p class="error">IP o máscara inválidas.</p>');
+        resultadoDiv.innerHTML = '<p class="error">Por favor, ingresa una dirección IP y un protocolo CIDR válidos.</p>';
+        return;
+    } else {
+        resultadoDiv.innerHTML = ''; // limpiar errores previos
     }
-    const octetos = valorIp.split('.').map((n) => parseInt(n, 10));
-    if (octetos.some((o) => o < 0 || o > 255)) {
-      return mostrarModal('<p class="error">IP inválida.</p>');
-    }
-    const [a, b2, b3, b4] = octetos;
-    const bits = valorMascara;
-    const bitsDefecto = a <= 126 ? 8 : a <= 191 ? 16 : 24;
-    const mascaraInt = Math.pow(2, 32) - Math.pow(2, 32 - bits);
-    const mascaraOctetos = [];
-    //Sacamos los octetos de la mascara
-    mascaraOctetos.push((mascaraInt >> 24) & 255);
-    mascaraOctetos.push((mascaraInt >> 16) & 255);
-    mascaraOctetos.push((mascaraInt >> 8) & 255);
-    mascaraOctetos.push(mascaraInt & 255);
-  
-    const mascaraDecimal = mascaraOctetos.join('.');
-    const wildcard = mascaraOctetos.map((x) => 255 - x).join('.');
-    const ipInt = ((a << 24) | (b2 << 16) | (b3 << 8) | b4) >>> 0;
-    const redInt = ipInt & mascaraInt;
-    const bcInt = redInt | (~mascaraInt >>> 0);
-    const totalHosts = bits < 31 ? 2 ** (32 - bits) - 2 : bits === 31 ? 2 : 1;
-    const hostMinimo = bits < 31 ? redInt + 1 : redInt;
-    const hostMaximo = bits < 31 ? bcInt - 1 : bits === 31 ? redInt + 1 : redInt;
-    const intAip = (i) =>
-      [(i >>> 24) & 0xff, (i >>> 16) & 0xff, (i >>> 8) & 0xff, i & 0xff].join(
-        '.'
-      );
-    const subredes = bits > bitsDefecto ? 2 ** (bits - bitsDefecto) : 1;
-    const ipHexadecimal = octetos.map((x) => x.toString(16).padStart(2, '0')).join('.');
-    const ipBinaria = octetos.map((x) => x.toString(2).padStart(8, '0')).join('.');
-    const mascaraBinaria = mascaraOctetos
-      .map((x) => x.toString(2).padStart(8, '0'))
-      .join('.');
-    const wildcardBinario = wildcard
-      .split('.')
-      .map((x) => parseInt(x).toString(2).padStart(8, '0'))
-      .join('.');
-    const redBinaria = intAip(redInt)
-      .split('.')
-      .map((x) => parseInt(x).toString(2).padStart(8, '0'))
-      .join('.');
-    const bcBinaria = intAip(bcInt)
-      .split('.')
-      .map((x) => parseInt(x).toString(2).padStart(8, '0'))
-      .join('.');
-    const esPriv = esPrivada(octetos) ? 'Privada' : 'Pública';
 
-    const html = `
-      <h2>Detalles de la IP</h2>
-      <p><strong>IP:</strong> ${valorIp} (${esPriv})</p>
-      <p><strong>BIN:</strong> ${colorearBinario(ipBinaria, bitsDefecto, bits)}</p>
-      <p><strong>Máscara /${bits}:</strong> ${mascaraDecimal} (${colorearBinario(mascaraBinaria, bitsDefecto, bits)})</p>
-      <p><strong>WildCard:</strong> ${wildcard} (${colorearBinario(wildcardBinario, bitsDefecto, bits)})</p>
-      <p><strong>Red:</strong> ${intAip(redInt)} (${colorearBinario(redBinaria, bitsDefecto, bits)})</p>
-      <p><strong>Broadcast:</strong> ${intAip(bcInt)} (${colorearBinario(bcBinaria, bitsDefecto, bits)})</p>
-      <p><strong>Clase:</strong> ${
-        bitsDefecto === 8 ? 'A' : bitsDefecto === 16 ? 'B' : 'C'
-      }</p>
-      <p><strong>Número de subredes:</strong> ${subredes}</p>
-      <p><strong>Hosts totales:</strong> ${totalHosts}</p>
-      <p><strong>Host mínimo:</strong> ${intAip(hostMinimo)}</p>
-      <p><strong>Host máximo:</strong> ${intAip(hostMaximo)}</p>
-      <p><strong>IP hexadecimal:</strong> ${ipHexadecimal}</p>
+    const [octeto1, octeto2, octeto3, octeto4] = octetos;
+    const ip = `${octeto1}.${octeto2}.${octeto3}.${octeto4}`;
+    let clase = '';
+    let wildcard = '';
+    let mascara = '';
+    let mascaraCompleta = '';
+    let direccionRedBinario = '';
+    let direccionRedDec = '';
+        //pasar a binario la ip
+        const binarioCompleto = binario(octeto1, octeto2, octeto3, octeto4);
+        //pasar a hexadecimal la ip
+        const iphexa = Hexadecimal(octeto1, octeto2, octeto3, octeto4);
+    // Diferenciar host y red en binario
+    let binarioColores = '';
+    const binariosSinPuntos = binarioCompleto.replace(/\./g, '');
+    // Determinar los bits que corresponden a la red por clase
+    let redPorDefecto = 0;
+    if (octeto1 >= 1 && octeto1 <= 126) redPorDefecto = 8;
+    else if (octeto1 >= 128 && octeto1 <= 191) redPorDefecto = 16;
+    else if (octeto1 >= 192 && octeto1 <= 223) redPorDefecto = 24;
+
+    // Determinar cuántos bits de subred hay
+    const bitsSubred = cidrval - redPorDefecto;
+
+    // Recorremos los bits sin puntos y coloreamos según corresponda
+    for (let i = 0; i < binariosSinPuntos.length; i++) {
+        if (i < redPorDefecto) {
+            // Parte de red (rojo)
+            binarioColores += '<span style="color: #ff0000;">' + binariosSinPuntos[i] + '</span>';
+        } else if (i < cidrval) {
+            // Parte de subred (naranja)
+            binarioColores += '<span style="color: orange;">' + binariosSinPuntos[i] + '</span>';
+        } else {
+            // Parte de host (verde)
+            binarioColores += '<span style="color: #00ff00;">' + binariosSinPuntos[i] + '</span>';
+        }
+    }
+
+    // Insertar puntos cada 8 bits, sin romper los tags HTML
+    let binarioCompletoColoreado = '';
+    let bitCounter = 0;
+    let insideTag = false;
+
+    for (let i = 0; i < binarioColores.length; i++) {
+        const char = binarioColores[i];
+        binarioCompletoColoreado += char;
+
+        if (char === '<') {
+            insideTag = true;
+        } else if (char === '>') {
+            insideTag = false;
+        } else if (!insideTag) {
+            // Solo contamos bits fuera de etiquetas
+            bitCounter++;
+            if (bitCounter % 8 === 0 && bitCounter !== 32) {
+                binarioCompletoColoreado += '.';
+            }
+        }
+    }
+    
+
+    //CALCULOS 
+        
+        //calculos clase y mascara
+        if (octeto1 >= 1 && octeto1 <= 126) {
+            clase = 'Clase A';
+            mascara = mascaraPersonalizada.value;
+        } else if (octeto1 >= 128 && octeto1 <= 191) {
+            clase = 'Clase B';
+            mascara = mascaraPersonalizada.value;
+        } else if (octeto1 >= 192 && octeto1 <= 223) {
+            clase = 'Clase C';
+            mascara = mascaraPersonalizada.value;
+        } else if (octeto1 >= 224 && octeto1 <= 239) {
+            clase = 'Clase D (Multicast)';
+        } else if (octeto1 >= 240 && octeto1 <= 255) {
+            clase = 'Clase E (Experimental)';
+        } else {
+            clase = 'Clase desconocida';
+        }
+
+        // Direccion privada o pública
+        if (
+            (octeto1 === 10) ||
+            (octeto1 === 172 && octeto2 >= 16 && octeto2 <= 31) ||
+            (octeto1 === 192 && octeto2 === 168)
+        ) {
+            direccion = 'Privada';
+        } else {
+            direccion = 'Pública';
+        }
+    
+        //Calcular numero de hosts
+        
+        let bits_host = 32 - cidrval;
+        let total_direcciones = Math.pow(2, bits_host);
+        numHosts = total_direcciones - 2;
+
+        if(clase === 'Clase D (Multicast)' || clase === 'Clase E (Experimental)' || clase === 'Clase desconocida'){
+            wildcard = 'N/A';
+            mascara = 'N/A';
+            mascaraCompleta = 'N/A';
+            direccionRedBinario = 'N/A';
+            direccionRedDec = 'N/A';
+            wildcardBinario = 'N/A';
+            direccionBroadcastDec = 'N/A';
+            direccionBroadcastBin = 'N/A';
+            numSubRed = 'N/A';
+            hostMin = 'N/A';
+            hostMax = 'N/A';
+            
+
+
+            
+            // Llamar a la función que muestra la ventana emergente con los datos hasta wildcard
+            mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
+                 direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
+            
+        }else{
+         // Calcular wildcard
+        const [w1, w2, w3, w4] = mascara.split('.').map(Number);
+        const max = '255.255.255.255';
+        const [max1, max2, max3, max4] = max.split('.').map(Number);
+        wildcard = `${max1 - w1}.${max2 - w2}.${max3 - w3}.${max4 - w4}`;
+        //Pasar a binario la wildcard
+        const wildcardBinario = binario(max1 - w1, max2 - w2, max3 - w3, max4 - w4)
+
+            //pasar a binario la mascara de red
+            const mascaraCompleta = binario(w1, w2, w3, w4);
+
+        //Calcular dirección de red
+        const [ib1, ib2, ib3, ib4] = binarioCompleto.split('.');
+        const [mb1, mb2, mb3, mb4] = mascaraCompleta.split('.');
+        let redbin1 = ''
+        for (i = 0; i<8; i++){
+            if(ib1[i] === '1' && mb1[i] === '1'){
+                redbin1 += '1';              
+            }else{
+                redbin1 += '0';
+            }
+        }
+        let redbin2 = ''
+         for (i = 0; i<8; i++){
+            if(ib2[i] === '1' && mb2[i] === '1'){
+                redbin2 += '1';              
+            }else{
+                redbin2 += '0';
+            }
+        }
+        let redbin3 = ''
+         for (i = 0; i<8; i++){
+            if(ib3[i] === '1' && mb3[i] === '1'){
+                redbin3 += '1';              
+            }else{
+                redbin3 += '0';
+            }
+        }
+        let redbin4 = ''
+         for (i = 0; i<8; i++){
+            if(ib4[i] === '1' && mb4[i] === '1'){
+                redbin4 += '1';              
+            }else{
+                redbin4 += '0';
+            }
+        }
+
+        let direccionRedBinario = `${redbin1}.${redbin2}.${redbin3}.${redbin4}`;
+        let direccionRedDec = decimal(redbin1, redbin2, redbin3, redbin4); 
+
+        //Calcular dirección de Broadcast
+        const [wb1, wb2, wb3, wb4] = wildcardBinario.split('.');
+        let broadBin1 = ''
+        for (i = 0; i<8; i++){
+            if(redbin1[i] === '0' && wb1[i] === '0'){
+                broadBin1 += '0';
+            }else{
+                broadBin1 += '1';
+            }
+        }
+        let broadBin2 = ''
+        for (i = 0; i<8; i++){
+            if(redbin2[i] === '0' && wb2[i] === '0'){
+                broadBin2 += '0';
+            }else{
+                broadBin2 += '1';
+            }
+        }
+        let broadBin3 = ''
+        for (i = 0; i<8; i++){
+            if(redbin3[i] === '0' && wb3[i] === '0'){
+                broadBin3 += '0';
+            }else{
+                broadBin3 += '1';
+            }
+        }
+        let broadBin4 = ''
+        for (i = 0; i<8; i++){
+            if(redbin4[i] === '0' && wb4[i] === '0'){
+                broadBin4 += '0';
+            }else{
+                broadBin4 += '1';
+            }
+        }
+
+        let direccionBroadcastBin = `${broadBin1}.${broadBin2}.${broadBin3}.${broadBin4}`;
+        let direccionBroadcastDec = decimal(broadBin1, broadBin2, broadBin3, broadBin4);
+
+        //calcular numero de subredes
+        let defmasc = ''; 
+
+        if (clase === 'Clase A'){
+            defmasc = 8;
+        }else if(clase === 'Clase B'){
+            defmasc = 16;
+        }else if(clase === 'Clase C'){
+            defmasc = 24;
+        }else{
+            defmasc = '';
+        }
+
+
+        let bitsExtra = cidrval - defmasc;
+        numSubRed = Math.pow(2, bitsExtra);
+
+        //calcular host minimo
+        let dec1 = parseInt(redbin1, 2);
+        let dec2 = parseInt(redbin2, 2);
+        let dec3 = parseInt(redbin3, 2);
+        let dec4 = parseInt(redbin4, 2) + 1;
+
+        let hostMin = `${dec1}.${dec2}.${dec3}.${dec4}`;
+        //calcular host maximo
+        let brdec1 = parseInt(broadBin1, 2);
+        let brdec2 = parseInt(broadBin2, 2);
+        let brdec3 = parseInt(broadBin3, 2);
+        let brdec4 = parseInt(broadBin4, 2) - 1;
+        
+        let hostMax = `${brdec1}.${brdec2}.${brdec3}.${brdec4}`
+
+        // Llamar a la función que muestra la ventana emergente con los datos hasta wildcard
+        mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
+             direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
+        }
+        
+
+    //FUNCIONES PARA CONVERTIR A BINARIO, DECIMAL
+    function binario(n1, n2, n3, n4) {
+        let bin = n1.toString(2); 
+        let bin2 = n2.toString(2);
+        let bin3 = n3.toString(2);
+        let bin4 = n4.toString(2);
+        const resultado = `${bin.padStart(8, '0')}.${bin2.padStart(8, '0')}.${bin3.padStart(8, '0')}.${bin4.padStart(8, '0')}`;
+        return resultado;
+    }
+    function decimal(n1, n2, n3, n4){
+        let dec = parseInt(n1, 2);
+        let dec2 = parseInt(n2, 2);
+        let dec3 = parseInt(n3, 2);
+        let dec4 = parseInt(n4, 2);
+        const resultado = `${dec}.${dec2}.${dec3}.${dec4}`;
+        return resultado;
+    }   
+    function Hexadecimal(n1, n2, n3, n4) {
+        let h1 = n1.toString(16).padStart(2, '0');
+        let h2 = n2.toString(16).padStart(2, '0');
+        let h3 = n3.toString(16).padStart(2, '0');
+        let h4 = n4.toString(16).padStart(2, '0');
+        return `${h1}.${h2}.${h3}.${h4}`.toUpperCase(); 
+}
+
+});
+
+//función para mostrar la ventana emergente
+function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta, direccionRedDec, 
+    direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa) {
+    const ventanaEmergente = document.createElement('div');
+    ventanaEmergente.classList.add('ventana-emergente');
+    ventanaEmergente.setAttribute('id', 'resultados');
+
+    // Leyenda en la esquina superior derecha
+    ventanaEmergente.innerHTML = `
+    <div style="position: absolute; top: 10px; right: 15px; font-size: 17px; color: #333;">
+        <span>🟥: red</span> &nbsp;
+        <span>🟧: subred</span> 
+        <span>🟩: host</span>
+    </div>
+    <h2>Detalles de la IP</h2>
+    <p style="margin-bottom: 25px;"><strong>IP:</strong> ${ip} (${direccion})<br><strong>Binario: </strong>${binarioCompletoColoreado}<br><strong>Hexadecimal:</strong>${iphexa}</p>
+    <p style="margin-bottom: 25px;"><strong>Máscara por defecto:</strong> ${mascara} <br><strong>Binario: </strong>${mascaraCompleta}</p>
+    <p><strong>Wildcard:</strong> ${wildcard}<br><strong>Binario: </strong>${wildcardBinario}</p>
+    <p><strong>Dirección de red:</strong>${direccionRedDec}<br><strong>Binario: </strong>${direccionRedBinario}</p>
+    <p><strong>Dirección de broadcast:</strong>${direccionBroadcastDec}<br><strong>Binario: </strong>${direccionBroadcastBin}</p>
+    <p><strong>Clase:</strong> ${clase}</p>
+    <p><strong>Nº Hosts:</strong>${numHosts}</p>
+    <p><strong>Host mínimo: </strong>${hostMin}</p>
+    <p><strong>Host máximo: </strong>${hostMax}</p>
+    <p><strong>Nº De Subredes</strong> ${numSubRed}</p>
+    <button id="cerrarVentana">Cerrar</button>
     `;
-    mostrarModal(html);
-  });
 
-})();
+    document.body.appendChild(ventanaEmergente);
+
+    document.getElementById('cerrarVentana').addEventListener('click', () => {
+        ventanaEmergente.remove();
+    });
+}
+
+// Función para obtener y poner la IP pública por defecto en el input
+function ponerIpPublicaPorDefecto() {
+    fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.ip) {
+                input.value = data.ip;
+                input.dispatchEvent(new Event('input'));
+            }
+        })
+        .catch(() => {});
+}
+ponerIpPublicaPorDefecto();
