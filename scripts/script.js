@@ -16,6 +16,25 @@ function generarMascaraDesdeCIDR(bits) {
         binarioMask.slice(24, 32)
     ].map(octBin => parseInt(octBin, 2)).join('.');
 }
+function mascaraValida(mascara) {
+    let encontrado_cero = false;
+
+    for (let i = 0; i < mascara.length; i++) {
+        if (mascara[i] === '1') {
+            if (encontrado_cero) {
+                return false;
+            }
+        } else if (mascara[i] === '0') {
+            encontrado_cero = true;
+        } else {
+            
+            return false;
+        }
+    }
+
+    return true; 
+}
+
 
 input.addEventListener('input', () => {
     const ipCompleta = input.value.trim();
@@ -26,13 +45,13 @@ input.addEventListener('input', () => {
         octetos.length === 4 &&
         octetos.every(octeto => !isNaN(octeto) && octeto >= 0 && octeto <= 255)
     );
-
+    //si la ip no es válida, ponemos estilos rojos
     if (!esValida) {
         input.style.borderColor = 'red';
         input.style.boxShadow = '0 0 5px red';
         input.style.color = 'red';
-        cidr.value = '';  // Limpiamos CIDR si IP no es válida
-        return;           // Salimos para no procesar más
+        cidr.value = '';  
+        return;           
     }
 
     // Si la IP es válida, ponemos estilos verdes
@@ -81,7 +100,28 @@ document.getElementById('calcular').addEventListener('click', () => {
     const ipCompleta = document.getElementById('ipCompleta').value.trim();
     const octetos = ipCompleta.split('.').map(octeto => parseInt(octeto));
     const resultadoDiv = document.getElementById('resultado');
+    const mp = mascaraPersonalizada.value.trim();
 
+    // --- 1) Validar primero la máscara personalizada ---
+    if (mp) {
+        // 1.1) Partimos el string en octetos y comprobamos rango 0–255
+        const octs = mp.split('.').map(o => parseInt(o, 10));
+        if (octs.length !== 4 || octs.some(o => isNaN(o) || o < 0 || o > 255)) {
+            resultadoDiv.innerHTML = '<p class="error">Máscara inválida.</p>';
+            return;
+        }
+        // 1.2) Convertimos a string binaria de 32 bits sin puntos
+        const binMask = octs
+            .map(o => o.toString(2).padStart(8, '0'))
+            .join('');
+        // 1.3) Usamos tu función mascaraValida para comprobar que son 1s luego 0s
+        if (!mascaraValida(binMask)) {
+            resultadoDiv.innerHTML = '<p class="error">Máscara inválida.</p>';
+            return;
+        }
+    }
+
+    
     if (
         octetos.length !== 4 || 
         octetos.some(octeto => isNaN(octeto) || octeto < 0 || octeto > 255) ||
