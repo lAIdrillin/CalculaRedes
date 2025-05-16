@@ -32,9 +32,7 @@ input.addEventListener('input', () => {
 
     if (primerOcteto >= 1 && primerOcteto <= 126) {
         cidrValue = 8;
-    } else if (primerOcteto === 127) {
-        cidrValue = 'Loopback';
-    } else if (primerOcteto >= 128 && primerOcteto <= 191) {
+    }else if (primerOcteto >= 128 && primerOcteto <= 191) {
         cidrValue = 16;
     } else if (primerOcteto >= 192 && primerOcteto <= 223) {
         cidrValue = 24;
@@ -135,7 +133,25 @@ document.getElementById('calcular').addEventListener('click', () => {
             }
         }
     }
+    const mascaraPersonalizada = document.getElementById("mascaraPersonalizada").value;
 
+    if(mascaraPersonalizada != ""){
+        mascara = mascaraPersonalizada;
+        if (octeto1 >= 1 && octeto1 <= 126) {
+            clase = 'Clase A';
+        } else if (octeto1 >= 128 && octeto1 <= 191) {
+            clase = 'Clase B';
+        } else if (octeto1 >= 192 && octeto1 <= 223) {
+            clase = 'Clase C';
+        } else if (octeto1 >= 224 && octeto1 <= 239) {
+            clase = 'Clase D (Multicast)';
+        } else if (octeto1 >= 240 && octeto1 <= 255) {
+            clase = 'Clase E (Experimental)';
+        } else {
+            clase = 'Clase desconocida';
+        }
+
+    }else{
     //CALCULOS 
         //calculos clase y mascara
         if (octeto1 >= 1 && octeto1 <= 126) {
@@ -146,7 +162,7 @@ document.getElementById('calcular').addEventListener('click', () => {
             mascara = '255.255.0.0';
         } else if (octeto1 >= 192 && octeto1 <= 223) {
             clase = 'Clase C';
-            mascara = '255.255.255.0';
+            mascara = '255.255.252.0';
         } else if (octeto1 >= 224 && octeto1 <= 239) {
             clase = 'Clase D (Multicast)';
         } else if (octeto1 >= 240 && octeto1 <= 255) {
@@ -165,6 +181,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         } else {
             direccion = 'Pública';
         }
+    }
         //Calcular numero de hosts
         
         let bits_host = 32 - cidrval;
