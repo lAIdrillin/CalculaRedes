@@ -77,7 +77,7 @@ document.getElementById('calcular').addEventListener('click', () => {
     }
 
     const [octeto1, octeto2, octeto3, octeto4] = octetos;
-    const ip = ${octeto1}.${octeto2}.${octeto3}.${octeto4};
+    const ip = `${octeto1}.${octeto2}.${octeto3}.${octeto4}`;
     let clase = '';
     let wildcard = '';
     let mascara = '';
@@ -196,7 +196,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         const [w1, w2, w3, w4] = mascara.split('.').map(Number);
         const max = '255.255.255.255';
         const [max1, max2, max3, max4] = max.split('.').map(Number);
-        wildcard = ${max1 - w1}.${max2 - w2}.${max3 - w3}.${max4 - w4};
+        wildcard = `${max1 - w1}.${max2 - w2}.${max3 - w3}.${max4 - w4}`;
         //Pasar a binario la wildcard
         const wildcardBinario = binario(max1 - w1, max2 - w2, max3 - w3, max4 - w4)
 
@@ -239,7 +239,7 @@ document.getElementById('calcular').addEventListener('click', () => {
             }
         }
 
-        let direccionRedBinario = ${redbin1}.${redbin2}.${redbin3}.${redbin4};
+        let direccionRedBinario = `${redbin1}.${redbin2}.${redbin3}.${redbin4}`;
         let direccionRedDec = decimal(redbin1, redbin2, redbin3, redbin4); 
 
         //Calcular dirección de Broadcast
@@ -277,7 +277,7 @@ document.getElementById('calcular').addEventListener('click', () => {
             }
         }
 
-        let direccionBroadcastBin = ${broadBin1}.${broadBin2}.${broadBin3}.${broadBin4};
+        let direccionBroadcastBin = `${broadBin1}.${broadBin2}.${broadBin3}.${broadBin4}`;
         let direccionBroadcastDec = decimal(broadBin1, broadBin2, broadBin3, broadBin4);
 
         //calcular numero de subredes
@@ -303,14 +303,14 @@ document.getElementById('calcular').addEventListener('click', () => {
         let dec3 = parseInt(redbin3, 2);
         let dec4 = parseInt(redbin4, 2) + 1;
 
-        let hostMin = ${dec1}.${dec2}.${dec3}.${dec4};
+        let hostMin = `${dec1}.${dec2}.${dec3}.${dec4}`;
         //calcular host maximo
         let brdec1 = parseInt(broadBin1, 2);
         let brdec2 = parseInt(broadBin2, 2);
         let brdec3 = parseInt(broadBin3, 2);
         let brdec4 = parseInt(broadBin4, 2) - 1;
         
-        let hostMax = ${brdec1}.${brdec2}.${brdec3}.${brdec4}
+        let hostMax = `${brdec1}.${brdec2}.${brdec3}.${brdec4}`
 
         // Llamar a la función que muestra la ventana emergente con los datos hasta wildcard
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
@@ -326,7 +326,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         let bin2 = n2.toString(2);
         let bin3 = n3.toString(2);
         let bin4 = n4.toString(2);
-        const resultado = ${bin.padStart(8, '0')}.${bin2.padStart(8, '0')}.${bin3.padStart(8, '0')}.${bin4.padStart(8, '0')}; //agregar ceros a la izquierda hasta llegar a 8 car
+        const resultado = `${bin.padStart(8, '0')}.${bin2.padStart(8, '0')}.${bin3.padStart(8, '0')}.${bin4.padStart(8, '0')}`; //agregar ceros a la izquierda hasta llegar a 8 car
         return resultado;
         }
     function decimal(n1, n2, n3, n4){
@@ -334,7 +334,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         let dec2 = parseInt(n2, 2);
         let dec3 = parseInt(n3, 2);
         let dec4 = parseInt(n4, 2);
-        const resultado = ${dec}.${dec2}.${dec3}.${dec4}
+        const resultado = `${dec}.${dec2}.${dec3}.${dec4}`
         return resultado;
     }   
     function Hexadecimal(n1, n2, n3, n4) {
@@ -342,7 +342,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         let h2 = n2.toString(16).padStart(2, '0');
         let h3 = n3.toString(16).padStart(2, '0');
         let h4 = n4.toString(16).padStart(2, '0');
-        return ${h1}.${h2}.${h3}.${h4}.toUpperCase(); 
+        return `${h1}.${h2}.${h3}.${h4}`.toUpperCase(); 
 }
 
 
