@@ -20,6 +20,7 @@ input.addEventListener('input', () => {
         input.style.color = 'red';
         cidr.value = '';  // Limpiamos CIDR si IP no es válida
         return;           // Salimos para no procesar más
+<<<<<<< Updated upstream
     }
 
     // Si la IP es válida, ponemos estilos verdes
@@ -55,8 +56,45 @@ cidr.addEventListener('input', () => {
         cidr.style.borderColor = '#00ff00';
         cidr.style.boxShadow = '0 0 5px #00ff00';
         cidr.style.color = '#00ff00';
+=======
+>>>>>>> Stashed changes
     }
+
+    // Si la IP es válida, ponemos estilos verdes
+    input.style.borderColor = '#00ff00';
+    input.style.boxShadow = '0 0 5px #00ff00';
+    input.style.color = '#00ff00';
+
+    const primerOcteto = octetos[0];
+    let cidrValue = '';
+
+    if (primerOcteto >= 1 && primerOcteto <= 126) {
+        cidrValue = 8;
+    } else if (primerOcteto === 127) {
+        cidrValue = 'Loopback';
+    } else if (primerOcteto >= 128 && primerOcteto <= 191) {
+        cidrValue = 16;
+    } else if (primerOcteto >= 192 && primerOcteto <= 223) {
+        cidrValue = 24;
+    } 
+
+    cidr.value = cidrValue;
 });
+
+
+    cidr.addEventListener('input', () => {
+        const cidrok = cidr.value.trim();
+
+        if (isNaN(cidrok) || cidrok < 8 || cidrok > 30) {
+            cidr.style.borderColor = 'red';
+            cidr.style.boxShadow = '0 0 5px red';
+            cidr.style.color = 'red';
+        }else{
+            cidr.style.borderColor = '#00ff00';
+            cidr.style.boxShadow = '0 0 5px #00ff00';
+            cidr.style.color = '#00ff00';
+        }
+    });
 
 document.getElementById('calcular').addEventListener('click', () => {
     const cidrInput = document.getElementById('cidr').value.trim();
@@ -184,9 +222,13 @@ document.getElementById('calcular').addEventListener('click', () => {
             hostMin = 'N/A';
             hostMax = 'N/A';
             
+<<<<<<< Updated upstream
 
 
             
+=======
+           
+>>>>>>> Stashed changes
             // Llamar a la función que muestra la ventana emergente con los datos hasta wildcard
             mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
                  direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
@@ -298,10 +340,17 @@ document.getElementById('calcular').addEventListener('click', () => {
         numSubRed = Math.pow(2, bitsExtra);
 
         //calcular host minimo
+<<<<<<< Updated upstream
         let dec1 = parseInt(redbin1, 2);
         let dec2 = parseInt(redbin2, 2);
         let dec3 = parseInt(redbin3, 2);
         let dec4 = parseInt(redbin4, 2) + 1;
+=======
+            let dec1 = parseInt(redbin1, 2);
+            let dec2 = parseInt(redbin2, 2);
+            let dec3 = parseInt(redbin3, 2);
+            let dec4 = parseInt(redbin4, 2) + 1;
+>>>>>>> Stashed changes
 
         let hostMin = `${dec1}.${dec2}.${dec3}.${dec4}`;
         //calcular host maximo
@@ -316,7 +365,10 @@ document.getElementById('calcular').addEventListener('click', () => {
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
              direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
         }
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
         
 
         
@@ -345,12 +397,17 @@ document.getElementById('calcular').addEventListener('click', () => {
         return `${h1}.${h2}.${h3}.${h4}`.toUpperCase(); 
 }
 
+<<<<<<< Updated upstream
 
 });
 
 
 
 
+=======
+});
+
+>>>>>>> Stashed changes
 //función para mostrar la ventana emergente
 function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta, direccionRedDec, 
     direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa) {
