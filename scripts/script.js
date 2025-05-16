@@ -56,42 +56,7 @@ cidr.addEventListener('input', () => {
         cidr.style.boxShadow = '0 0 5px #00ff00';
         cidr.style.color = '#00ff00';
     }
-
-    // Si la IP es válida, ponemos estilos verdes
-    input.style.borderColor = '#00ff00';
-    input.style.boxShadow = '0 0 5px #00ff00';
-    input.style.color = '#00ff00';
-
-    const primerOcteto = octetos[0];
-    let cidrValue = '';
-
-    if (primerOcteto >= 1 && primerOcteto <= 126) {
-        cidrValue = 8;
-    } else if (primerOcteto === 127) {
-        cidrValue = 'Loopback';
-    } else if (primerOcteto >= 128 && primerOcteto <= 191) {
-        cidrValue = 16;
-    } else if (primerOcteto >= 192 && primerOcteto <= 223) {
-        cidrValue = 24;
-    } 
-
-    cidr.value = cidrValue;
 });
-
-
-    cidr.addEventListener('input', () => {
-        const cidrok = cidr.value.trim();
-
-        if (isNaN(cidrok) || cidrok < 8 || cidrok > 30) {
-            cidr.style.borderColor = 'red';
-            cidr.style.boxShadow = '0 0 5px red';
-            cidr.style.color = 'red';
-        }else{
-            cidr.style.borderColor = '#00ff00';
-            cidr.style.boxShadow = '0 0 5px #00ff00';
-            cidr.style.color = '#00ff00';
-        }
-    });
 
 document.getElementById('calcular').addEventListener('click', () => {
     const cidrInput = document.getElementById('cidr').value.trim();
@@ -351,6 +316,7 @@ document.getElementById('calcular').addEventListener('click', () => {
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
              direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
         }
+
         
 
         
