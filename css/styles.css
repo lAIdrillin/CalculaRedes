@@ -132,3 +132,15 @@ input[type="number"]::-webkit-outer-spin-button {
         scrollbar-color: #00ff00 rgba(0, 0, 0, 0.8); /* Set green scroll color */
         scrollbar-width: auto; /* Make the scrollbar thinner */
     }
+    #mascaraPersonalizada {
+        border: 1px solid #00ff00;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        color: #00ff00;
+        background-color: rgb(12, 12, 12);
+        margin-top: 15px;
+        text-align: center;
+        border-radius: 20px;
+        width: 30%;
+        height: 50px;
+        font-size: 33px;
+    }
