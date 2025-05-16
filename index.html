@@ -1,40 +1,41 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Calculadora IP Avanzada</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora IP</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
-  <table id="calculadora">
-    <caption>CalculaRedes</caption>
-    <tr>
-      <td colspan="2">
-        <form id="formulario">
-          <label class="ip" for="ipCompleta"><strong>IP:</strong></label>
-          <input type="text" id="ipCompleta" name="ipCompleta" placeholder="192.168.1.5" required>
-
-          <label class="ip" for="subnetCompleta"><strong> / </strong></label>
-          <input type="number" id="subnetCompleta" name="subnetCompleta" min="8" max="30" required>
-          <button type="button" id="btnLocalIP" title="Obtener IP local">IP Local</button>
-          <br><br>
-          <button type="button" id="calcular">Calcular</button>
-        </form>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <div id="resultado"></div>
-        <div id="resumen-sesiones" style="display:none;"></div>
-      </td>
-    </tr>
-  </table>
-
-  <video autoplay loop muted playsinline id="video-fondo">
-    <source src="fondo/47802-451812879_tiny.mp4" type="video/mp4">
-  </video>
-  <script src="scripts/script.js"></script>
+    <table id="calculadora">
+        <caption style="font-size: 50px;">CalcuRedes</caption>
+        <tr> 
+            <td colspan="2">
+                <form id="formulario">
+                    <div id = form>
+                        <label class="ip" for="ip" style="font-size: 30px;"><strong>IP:</strong></label>
+                        <div id="ip-inputs">
+                            <input type="text" id="ipCompleta" name="ip" min="0" max="255" style="margin-right: 20px;" required>
+                           /
+                            <input type="text" id="cidr" min="8" max="30" style="margin-left: 20px; width: 10%;"><span style="font-size: medium; margin-left: 20px;">(CIDR)</span>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <button type="button" id="calcular">Calcular</button>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="resultado"></div>
+            </tr>
+            </table>
+            <video autoplay loop muted playsinline id="video-fondo" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;">
+            <source src="fondo/47802-451812879_tiny.mp4" type="video/mp4">
+            </video>
+    <script src="scripts/script.js"></script>
 </body>
 </html>
