@@ -3,12 +3,12 @@ const input = document.getElementById('ipCompleta');
 const cidr = document.getElementById('cidr');
 const mascaraPersonalizada = document.getElementById('mascaraPersonalizada');  // ahora es el elemento
 
-
+// función que, dado un /CIDR, genera la máscara decimal correspondiente
 function generarMascaraDesdeCIDR(bits) {
     const unos = '1'.repeat(bits);
     const ceros = '0'.repeat(32 - bits);
     const binarioMask = unos + ceros;
-
+    // partir en grupos de 8, convertir a decimal y unir con puntos
     return [
         binarioMask.slice(0, 8),
         binarioMask.slice(8, 16),
@@ -69,7 +69,7 @@ cidr.addEventListener('input', () => {
         cidr.style.borderColor = '#00ff00';
         cidr.style.boxShadow = '0 0 5px #00ff00';
         cidr.style.color = '#00ff00';
-
+        // al ser válido, calcular y poner la máscara decimal
         const bits = parseInt(cidrok, 10);
         mascaraPersonalizada.value = generarMascaraDesdeCIDR(bits);
     }
@@ -159,13 +159,13 @@ document.getElementById('calcular').addEventListener('click', () => {
         //calculos clase y mascara
         if (octeto1 >= 1 && octeto1 <= 126) {
             clase = 'Clase A';
-            mascara = '255.0.0.0';
+            mascara = mascaraPersonalizada.value;
         } else if (octeto1 >= 128 && octeto1 <= 191) {
             clase = 'Clase B';
-            mascara = '255.255.0.0';
+            mascara = mascaraPersonalizada.value;
         } else if (octeto1 >= 192 && octeto1 <= 223) {
             clase = 'Clase C';
-            mascara = '255.255.255.0';
+            mascara = mascaraPersonalizada.value;
         } else if (octeto1 >= 224 && octeto1 <= 239) {
             clase = 'Clase D (Multicast)';
         } else if (octeto1 >= 240 && octeto1 <= 255) {
