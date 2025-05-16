@@ -79,3 +79,25 @@ En la sesion de hoy nos hemos encargado de implementar varias cosas: un input pa
 ### Ideas de Mejora Futura
 - Mayor organazicaaion
 - Ir mejorando con el paso de sesiones.
+
+
+## Sesión 4: Subredes 16/05/2025
+
+### Resumen
+En la sesion de hoy nos hemos encargado de corregir algunas cosas de la sesion anaterior y añadir las de hoy como añadir un input para introducir una mascara variable y comprobar que ese valor es valido de acuerdo aal resto de valores de red, luego dentro de nuestro resumen de la ip añadimos las subredes que esas muestran la informacion de esa subred y para terminar una validacion de las ips y mascaras atraves de pattern
+
+### Dificultades Encontradas
+1. *Problema*: Colocacion de la validacion en pattern
+
+### Soluciones Aplicadas
+1. *Solución*: En vez de implementarla en el script encontramos una manera mas sencilla en HTML
+
+### Fuentes Consultadas
+- github copilot
+- Compañeros de clase
+
+### Decisiones Técnicas
+- 
+
+### Ideas de Mejora Futura
+- Mejor organizacion
