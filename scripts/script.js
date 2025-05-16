@@ -20,7 +20,6 @@ input.addEventListener('input', () => {
         input.style.color = 'red';
         cidr.value = '';  // Limpiamos CIDR si IP no es válida
         return;           // Salimos para no procesar más
-<<<<<<< Updated upstream
     }
 
     // Si la IP es válida, ponemos estilos verdes
@@ -56,8 +55,6 @@ cidr.addEventListener('input', () => {
         cidr.style.borderColor = '#00ff00';
         cidr.style.boxShadow = '0 0 5px #00ff00';
         cidr.style.color = '#00ff00';
-=======
->>>>>>> Stashed changes
     }
 
     // Si la IP es válida, ponemos estilos verdes
@@ -222,13 +219,9 @@ document.getElementById('calcular').addEventListener('click', () => {
             hostMin = 'N/A';
             hostMax = 'N/A';
             
-<<<<<<< Updated upstream
 
 
             
-=======
-           
->>>>>>> Stashed changes
             // Llamar a la función que muestra la ventana emergente con los datos hasta wildcard
             mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
                  direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
@@ -340,17 +333,10 @@ document.getElementById('calcular').addEventListener('click', () => {
         numSubRed = Math.pow(2, bitsExtra);
 
         //calcular host minimo
-<<<<<<< Updated upstream
         let dec1 = parseInt(redbin1, 2);
         let dec2 = parseInt(redbin2, 2);
         let dec3 = parseInt(redbin3, 2);
         let dec4 = parseInt(redbin4, 2) + 1;
-=======
-            let dec1 = parseInt(redbin1, 2);
-            let dec2 = parseInt(redbin2, 2);
-            let dec3 = parseInt(redbin3, 2);
-            let dec4 = parseInt(redbin4, 2) + 1;
->>>>>>> Stashed changes
 
         let hostMin = `${dec1}.${dec2}.${dec3}.${dec4}`;
         //calcular host maximo
@@ -365,10 +351,6 @@ document.getElementById('calcular').addEventListener('click', () => {
         mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta,
              direccionRedDec, direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa);
         }
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
         
 
         
@@ -397,17 +379,12 @@ document.getElementById('calcular').addEventListener('click', () => {
         return `${h1}.${h2}.${h3}.${h4}`.toUpperCase(); 
 }
 
-<<<<<<< Updated upstream
 
 });
 
 
 
 
-=======
-});
-
->>>>>>> Stashed changes
 //función para mostrar la ventana emergente
 function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binarioCompletoColoreado, mascaraCompleta, direccionRedDec, 
     direccionRedBinario, wildcardBinario, direccionBroadcastDec, direccionBroadcastBin, numHosts, numSubRed, hostMin, hostMax, iphexa) {
