@@ -3,6 +3,21 @@ const input = document.getElementById('ipCompleta');
 const cidr = document.getElementById('cidr');
 const mascaraPersonalizada = document.getElementById('mascaraPersonalizada');  // ahora es el elemento
 
+// Función para obtener y poner la IP pública por defecto en el input
+function ponerIpPublicaPorDefecto() {
+    fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.ip) {
+                input.value = data.ip;
+                input.dispatchEvent(new Event('input'));
+            }
+        })
+        .catch(() => {});
+}
+
+
+
 // función que, dado un /CIDR, genera la máscara decimal correspondiente
 function generarMascaraDesdeCIDR(bits) {
     const unos = '1'.repeat(bits);
@@ -412,7 +427,13 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binari
     ventanaEmergente.classList.add('ventana-emergente');
     ventanaEmergente.setAttribute('id', 'resultados');
 
-    // Leyenda en la esquina superior derecha
+    // Añadir los datos necesarios para la tabla de subredes
+    ventanaEmergente.dataset.direccionRedDec = direccionRedDec;
+    ventanaEmergente.dataset.mascara = mascara;
+    ventanaEmergente.dataset.wildcard = wildcard;
+    ventanaEmergente.dataset.numSubRed = numSubRed;
+
+  //resutlados
     ventanaEmergente.innerHTML = `
     <div style="position: absolute; top: 10px; right: 15px; font-size: 17px; color: #333;">
         <span>🟥: red</span> &nbsp;
@@ -429,9 +450,9 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binari
     <p><strong>Nº Hosts:</strong>${numHosts}</p>
     <p><strong>Host mínimo: </strong>${hostMin}</p>
     <p><strong>Host máximo: </strong>${hostMax}</p>
-    <p><strong>Nº De Subredes</strong> ${numSubRed}</p>
-    <button id="cerrarVentana">Cerrar</button>
-    `;
+    <p><strong>Nº De Subredes</strong> ${numSubRed}
+    <br><button id="subredes">Mostrar datos subredes</button></p>
+    <button id="cerrarVentana">Cerrar</button>`;
 
     document.body.appendChild(ventanaEmergente);
 
@@ -440,16 +461,63 @@ function mostrarVentanaEmergente(ip, clase, mascara, direccion, wildcard, binari
     });
 }
 
-// Función para obtener y poner la IP pública por defecto en el input
-function ponerIpPublicaPorDefecto() {
-    fetch('https://api.ipify.org?format=json')
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.ip) {
-                input.value = data.ip;
-                input.dispatchEvent(new Event('input'));
-            }
-        })
-        .catch(() => {});
-}
+
+// Listener para generar tabla de subredes leyendo del dataset
+document.body.addEventListener('click', e => {
+    if (e.target.id === 'subredes') {
+        const ventana = document.getElementById('resultados');
+        if (ventana.querySelector('#tabla-subredes')) return;
+
+        const redDec   = ventana.dataset.direccionRedDec;
+        const maskDec  = ventana.dataset.mascara;
+        const wildcard = ventana.dataset.wildcard;
+        const numSub   = parseInt(ventana.dataset.numSubRed, 10);
+
+        const bits = maskDec.split('.')
+            .map(o=> parseInt(o,10).toString(2).padStart(8,'0'))
+            .join('').split('').filter(b=>'1'===b).length;
+
+        const firstOct = parseInt(redDec.split('.')[0],10);
+        let redPorDef = firstOct<=126?8 : firstOct<=191?16 : firstOct<=223?24:0;
+        const extra = bits - redPorDef;
+        const pasos = Math.pow(2, extra);
+        const salto = 256 / pasos;
+        const hostsPor = Math.pow(2, 32 - bits) - 2;
+
+        let tabla = `<table id="tabla-subredes" style="margin-top:20px; width:100%; border-collapse:collapse;">
+          <caption style="font-size:24px; margin-bottom:10px;">Subredes /${bits}</caption>
+          <tr>
+            <th>Subred</th><th>Red</th><th>Máscara</th><th>Wildcard</th>
+            <th>Broadcast</th><th>Host min</th><th>Host max</th><th>Hosts</th>
+          </tr>`;
+
+        for (let i = 0; i < Math.min(numSub, 8); i++) {
+          const oct2 = i * salto;
+          const net = `${firstOct}.${oct2}.0.0`;
+          const bcastOct2 = oct2 + salto - 1;
+          const bcast = `${firstOct}.${bcastOct2}.255.255`;
+          const hostMin = `${firstOct}.${oct2}.0.1`;
+          const hostMax = `${firstOct}.${bcastOct2}.255.254`;
+
+          tabla += `
+            <tr>
+              <td style="text-align:center;">${i+1}</td>
+              <td>${net}</td>
+              <td>${maskDec}</td>
+              <td>${wildcard}</td>
+              <td>${bcast}</td>
+              <td>${hostMin}</td>
+              <td>${hostMax}</td>
+              <td style="text-align:right;">${hostsPor.toLocaleString()}</td>
+            </tr>`;
+        }
+
+        tabla += '</table>';
+        ventana.insertAdjacentHTML('beforeend', tabla);
+    }
+});
+
+
+
+
 ponerIpPublicaPorDefecto();
